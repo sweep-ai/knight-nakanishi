@@ -21,10 +21,10 @@ const PainPointsSection = () => {
 
   return (
     <section className="relative py-16 sm:py-20 md:py-24 lg:py-32 section-light diagonal-top">
-      <div className="container px-4 sm:px-6 relative z-10">
-        {/* Section header */}
-        <div className="text-center mb-10 sm:mb-12 md:mb-16 relative z-20">
-          <h2 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-secondary-foreground mb-3 sm:mb-4 px-2 relative z-30">
+      <div className="container px-4 sm:px-6 relative z-20">
+        {/* Section header - extra top padding on mobile to account for diagonal overlap */}
+        <div className="text-center mb-10 sm:mb-12 md:mb-16 relative z-30 pt-8 sm:pt-0">
+          <h2 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-secondary-foreground mb-3 sm:mb-4 px-2 relative z-40">
             Sound <span className="text-primary">Familiar?</span>
           </h2>
           <p className="text-base sm:text-lg text-muted-foreground max-w-xl mx-auto px-4">

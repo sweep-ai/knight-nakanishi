@@ -19,7 +19,7 @@ const HeroSection = () => {
       </div>
 
       {/* Content */}
-      <div className="container relative z-10 px-4 sm:px-6 py-4 sm:py-8 md:py-10">
+      <div className="container relative z-10 px-4 sm:px-6 pt-2 sm:pt-8 pb-4 sm:pb-8 md:py-10">
         <div className="max-w-4xl mx-auto text-center">
           {/* Pre-headline badge */}
           <div className="inline-flex items-center gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 mb-3 sm:mb-4 border border-primary/30 bg-primary/10 rounded-sm animate-fade-in">
@@ -30,7 +30,7 @@ const HeroSection = () => {
           </div>
 
           {/* Main headline */}
-          <h1 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl leading-tight mb-2 sm:mb-3 animate-slide-up px-2">
+          <h1 className="font-display text-4xl sm:text-4xl md:text-5xl lg:text-6xl leading-tight mb-2 sm:mb-3 animate-slide-up px-2">
             Don't Choose Between{" "}
             <span className="text-gradient">Your Culture</span> and{" "}
             <span className="text-gradient">Your Goals</span>

@@ -32,7 +32,7 @@ const StorySection = () => {
 
   return (
     <section className="relative py-16 sm:py-20 md:py-24 lg:py-32 section-dark diagonal-divider">
-      <div className="container px-4 sm:px-6">
+      <div className="container px-4 sm:px-6 relative z-10">
         {/* Section header */}
         <div className="text-center mb-10 sm:mb-12 md:mb-16">
           <h2 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl mb-3 sm:mb-4 px-2">
@@ -81,13 +81,13 @@ const StorySection = () => {
           ))}
         </div>
 
-        {/* CTA */}
-        <div className="text-center px-4">
+        {/* CTA - extra bottom padding on mobile to account for diagonal overlap */}
+        <div className="text-center px-4 relative z-20 pb-8 sm:pb-0">
           <Button 
             variant="cta" 
             size="lg" 
             onClick={scrollToForm}
-            className="font-display text-base sm:text-lg w-full sm:w-auto"
+            className="font-display text-base sm:text-lg w-full sm:w-auto relative z-30"
           >
             See How I Can Help You
           </Button>
