@@ -19,7 +19,7 @@ const HeroSection = () => {
       </div>
 
       {/* Content */}
-      <div className="container relative z-10 px-4 sm:px-6 py-6 sm:py-8 md:py-10">
+      <div className="container relative z-10 px-4 sm:px-6 py-4 sm:py-8 md:py-10">
         <div className="max-w-4xl mx-auto text-center">
           {/* Pre-headline badge */}
           <div className="inline-flex items-center gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 mb-3 sm:mb-4 border border-primary/30 bg-primary/10 rounded-sm animate-fade-in">
