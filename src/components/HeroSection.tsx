@@ -1,9 +1,16 @@
 import { Button } from "@/components/ui/button";
-import { ArrowDown, Play } from "lucide-react";
+import { ArrowDown, Play, Calendar } from "lucide-react";
 
 const HeroSection = () => {
   const scrollToForm = () => {
     document.getElementById("lead-form")?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const handleBookCall = () => {
+    // TODO: Implement booking logic
+    // This should open a calendar booking widget (e.g., Calendly, Acuity, etc.)
+    // or navigate to a booking page
+    window.open("https://calendly.com/knight-nakanishi", "_blank");
   };
 
   return (
@@ -39,7 +46,7 @@ const HeroSection = () => {
           {/* Subheadline */}
           <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl mx-auto mb-3 sm:mb-4 animate-slide-up px-4" style={{ animationDelay: "0.2s" }}>
             Get lean, strong, and confident while still eating adobo, pho, nasi lemak, and pad thai. 
-            I'll show you how 200+ Southeast Asians transformed their bodies without giving up the foods they love.
+            I'll show you how 200+ people transformed their bodies without giving up the foods they love.
           </p>
 
           {/* VSL Video Placeholder */}
@@ -58,21 +65,39 @@ const HeroSection = () => {
               {/* Video label */}
               <div className="absolute bottom-1.5 sm:bottom-2 left-2 sm:left-3 right-2 sm:right-3">
                 <p className="text-[10px] sm:text-xs text-muted-foreground text-center">
-                  Watch: How 200+ Southeast Asians Transformed Without Giving Up Their Favorite Foods
+                  Watch: How 200+ People Transformed Without Giving Up Their Favorite Foods
                 </p>
               </div>
             </div>
           </div>
 
-          {/* CTA Button */}
-          <div className="animate-slide-up mt-3 sm:mt-4 px-4" style={{ animationDelay: "0.6s" }}>
+          {/* CTA Buttons */}
+          <div className="animate-slide-up mt-3 sm:mt-4 px-4 space-y-3 sm:space-y-4" style={{ animationDelay: "0.6s" }}>
             <Button 
               variant="hero" 
               size="xl" 
               onClick={scrollToForm}
               className="font-display text-sm sm:text-base md:text-lg w-full sm:w-auto"
             >
-              Start Your Transformation
+              Get Your Free Plan
+            </Button>
+            
+            {/* Divider */}
+            <div className="flex items-center gap-3 sm:gap-4 max-w-xs mx-auto">
+              <div className="flex-1 h-px bg-muted-foreground/20" />
+              <span className="text-xs text-muted-foreground uppercase tracking-wider">or</span>
+              <div className="flex-1 h-px bg-muted-foreground/20" />
+            </div>
+
+            {/* Book a Call Button */}
+            <Button 
+              variant="cta" 
+              size="xl" 
+              onClick={handleBookCall}
+              className="font-display text-sm sm:text-base md:text-lg w-full sm:w-auto group"
+            >
+              <Calendar className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+              Book a Free Call
             </Button>
           </div>
 
