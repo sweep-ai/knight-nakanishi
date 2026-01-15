@@ -1,7 +1,7 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Star, BookOpen, Calendar, ChefHat, CheckCircle } from "lucide-react";
+import { ArrowRight, Star, BookOpen, Calendar, ChefHat, CheckCircle, Download, Smartphone } from "lucide-react";
 import Footer from "@/components/Footer";
 import { PDF_URL, PDF_DOWNLOAD_NAME } from "@/config/pdfConfig";
 
@@ -11,9 +11,20 @@ const Cookbook = () => {
   const experience = searchParams.get("experience") || "beginner";
   const challenge = searchParams.get("challenge") || "time";
 
-  // Scroll to top when component mounts
+  // Detect mobile device
+  const [isMobile, setIsMobile] = useState(false);
+
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
+    
+    // Check if mobile device
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
   const handleBookCall = () => {
@@ -280,24 +291,95 @@ const Cookbook = () => {
               </Button>
             </div>
 
-            {/* PDF Embed */}
-            <div className="bg-card rounded-sm border border-border shadow-2xl overflow-hidden">
-              <div className="relative w-full" style={{ minHeight: "500px", height: "70vh" }}>
-                <iframe
-                  src={PDF_URL}
-                  className="w-full h-full border-0"
-                  title="Southeast Asian Fitness Cookbook"
-                  style={{ minHeight: "500px" }}
-                />
-              </div>
-            </div>
+            {/* Mobile-optimized view */}
+            {isMobile ? (
+              <div className="bg-card rounded-sm border border-border shadow-2xl p-6 sm:p-8">
+                <div className="text-center space-y-4 sm:space-y-6">
+                  {/* Mobile icon */}
+                  <div className="flex justify-center">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 bg-primary/10 rounded-full flex items-center justify-center">
+                      <Smartphone className="w-8 h-8 sm:w-10 sm:h-10 text-primary" />
+                    </div>
+                  </div>
+                  
+                  {/* Message */}
+                  <div>
+                    <h3 className="font-display text-xl sm:text-2xl text-foreground mb-2 sm:mb-3">
+                      View on Mobile
+                    </h3>
+                    <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6 max-w-md mx-auto">
+                      For the best viewing experience on mobile, download the cookbook to view all pages and recipes.
+                    </p>
+                  </div>
 
-            {/* Mobile fallback message */}
-            <div className="mt-3 sm:mt-4 text-center">
-              <p className="text-xs sm:text-sm text-muted-foreground px-4">
-                Having trouble viewing? <a href={PDF_URL} download={PDF_DOWNLOAD_NAME} className="text-primary hover:underline">Download the PDF</a> to view on your device.
-              </p>
-            </div>
+                  {/* Download button */}
+                  <Button
+                    variant="hero"
+                    size="lg"
+                    asChild
+                    className="font-display text-base sm:text-lg w-full sm:w-auto"
+                  >
+                    <a
+                      href={PDF_URL}
+                      download={PDF_DOWNLOAD_NAME}
+                      className="inline-flex items-center"
+                    >
+                      <Download className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                      Download Full Cookbook
+                    </a>
+                  </Button>
+
+                  {/* Alternative: Open in browser */}
+                  <div className="pt-4 border-t border-border">
+                    <p className="text-xs sm:text-sm text-muted-foreground mb-3">
+                      Or view in your browser:
+                    </p>
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      asChild
+                      className="font-display text-sm sm:text-base w-full sm:w-auto"
+                    >
+                      <a
+                        href={PDF_URL}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center"
+                      >
+                        <BookOpen className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                        Open in Browser
+                      </a>
+                    </Button>
+                  </div>
+
+                  {/* Preview note */}
+                  <p className="text-xs text-muted-foreground/70 pt-2">
+                    The cookbook contains 25+ optimized Southeast Asian recipes with complete macro breakdowns.
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <>
+                {/* Desktop PDF Embed */}
+                <div className="bg-card rounded-sm border border-border shadow-2xl overflow-hidden">
+                  <div className="relative w-full" style={{ minHeight: "500px", height: "70vh" }}>
+                    <iframe
+                      src={PDF_URL}
+                      className="w-full h-full border-0"
+                      title="Southeast Asian Fitness Cookbook"
+                      style={{ minHeight: "500px" }}
+                    />
+                  </div>
+                </div>
+
+                {/* Desktop fallback message */}
+                <div className="mt-3 sm:mt-4 text-center">
+                  <p className="text-xs sm:text-sm text-muted-foreground px-4">
+                    Having trouble viewing? <a href={PDF_URL} download={PDF_DOWNLOAD_NAME} className="text-primary hover:underline">Download the PDF</a> to view on your device.
+                  </p>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </section>
