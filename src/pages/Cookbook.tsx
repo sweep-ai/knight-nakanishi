@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Star, BookOpen, Calendar, ChefHat, CheckCircle } from "lucide-react";
 import Footer from "@/components/Footer";
+import { PDF_URL, PDF_DOWNLOAD_NAME } from "@/config/pdfConfig";
 
 const Cookbook = () => {
   const [searchParams] = useSearchParams();
@@ -283,7 +284,7 @@ const Cookbook = () => {
             <div className="bg-card rounded-sm border border-border shadow-2xl overflow-hidden">
               <div className="relative w-full" style={{ minHeight: "500px", height: "70vh" }}>
                 <iframe
-                  src="/SEA RECIPES.pdf"
+                  src={PDF_URL}
                   className="w-full h-full border-0"
                   title="Southeast Asian Fitness Cookbook"
                   style={{ minHeight: "500px" }}
@@ -294,7 +295,7 @@ const Cookbook = () => {
             {/* Mobile fallback message */}
             <div className="mt-3 sm:mt-4 text-center">
               <p className="text-xs sm:text-sm text-muted-foreground px-4">
-                Having trouble viewing? <a href="/SEA RECIPES.pdf" download className="text-primary hover:underline">Download the PDF</a> to view on your device.
+                Having trouble viewing? <a href={PDF_URL} download={PDF_DOWNLOAD_NAME} className="text-primary hover:underline">Download the PDF</a> to view on your device.
               </p>
             </div>
           </div>
