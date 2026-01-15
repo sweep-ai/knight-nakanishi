@@ -15,23 +15,21 @@ const AuthoritySection = () => {
           <div className="grid lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16 items-center">
             {/* Image side */}
             <div className="relative order-2 lg:order-1">
-              {/* Main image placeholder */}
-              <div className="relative aspect-[4/5] bg-gradient-to-br from-muted to-card rounded-sm overflow-hidden shadow-2xl">
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="text-center p-6 sm:p-8">
-                    <Dumbbell className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 mx-auto mb-3 sm:mb-4 text-primary/30" />
-                    <p className="text-muted-foreground text-xs sm:text-sm uppercase tracking-wider">
-                      Knight Nakanishi
-                    </p>
-                  </div>
-                </div>
+              {/* Headshot image */}
+              <div className="relative aspect-[4/5] rounded-sm overflow-hidden shadow-2xl">
+                <img
+                  src="/Headshot.jpg"
+                  alt="Knight Nakanishi"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
                 {/* Accent overlay */}
                 <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-primary/20 to-transparent" />
               </div>
 
               {/* Floating accent card - repositioned for mobile */}
               <div className="absolute -bottom-4 -right-4 sm:-bottom-6 sm:-right-6 p-3 sm:p-4 bg-primary rounded-sm shadow-xl">
-                <p className="font-display text-2xl sm:text-3xl md:text-4xl text-accent">200+</p>
+                <p className="font-display text-2xl sm:text-3xl md:text-4xl text-accent">100+</p>
                 <p className="text-xs sm:text-sm text-accent/80 uppercase tracking-wider">
                   Lives Changed
                 </p>
@@ -46,16 +44,16 @@ const AuthoritySection = () => {
 
               <div className="space-y-3 sm:space-y-4 text-sm sm:text-base text-secondary-foreground/80 mb-6 sm:mb-8">
                 <p>
-                  I'm Knight Nakanishi. I help Southeast Asians get in the best shape of their lives without abandoning their culture.
+                  I'm Knight Nakanishi. I help hundreds of people get in the best shape of their lives without abandoning their culture.
                 </p>
                 <p>
-                  When I was 10, my family struggled. Football was my outlet—until anhidrosis took it away. Fitness gave me a second chance. It taught me discipline, resilience, and that your circumstances don't define you.
+                  When I was 10, my family struggled. Football was my outlet. But when anhidrosis made playing hard, fitness gave me a second chance. It taught me discipline, resilience, and that your circumstances don't define you.
                 </p>
                 <p>
-                  Now, I'm on a mission: prove that you don't need to eat like a Westerner to look and feel incredible. Your food isn't the problem. Bad programming is.
+                  Now, I'm on a mission: prove that you don't need to eat cut out your cultural foods to look and feel incredible. Your food isn't the problem. Bad programming is.
                 </p>
                 <p className="font-medium text-secondary-foreground">
-                  I've helped 200+ people from the Philippines, Vietnam, Malaysia, Thailand, and beyond transform their bodies while eating the foods they grew up with. No BS. No restrictions. Just results.
+                  I've helped 100+ people from the Vietnam, Malaysia, Thailand, Philippines, and beyond transform their bodies while eating the foods they grew up with. No BS. No restrictions. Just results.
                 </p>
               </div>
 

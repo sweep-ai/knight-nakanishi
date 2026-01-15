@@ -2,8 +2,8 @@ import { Button } from "@/components/ui/button";
 import { Heart, AlertTriangle, Flame } from "lucide-react";
 
 const StorySection = () => {
-  const scrollToForm = () => {
-    document.getElementById("lead-form")?.scrollIntoView({ behavior: "smooth" });
+  const handleBookCall = () => {
+    window.location.href = "https://calendly.com/knightnakanishi/the-next-step-in-your-fitness-journey";
   };
 
   const storyCards = [
@@ -86,7 +86,7 @@ const StorySection = () => {
           <Button 
             variant="cta" 
             size="lg" 
-            onClick={scrollToForm}
+            onClick={handleBookCall}
             className="font-display text-base sm:text-lg w-full sm:w-auto relative z-30"
           >
             See How I Can Help You

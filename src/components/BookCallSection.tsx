@@ -3,16 +3,13 @@ import { Calendar, Clock, CheckCircle } from "lucide-react";
 
 const BookCallSection = () => {
   const handleBookCall = () => {
-    // TODO: Implement booking logic
-    // This should open a calendar booking widget (e.g., Calendly, Acuity, etc.)
-    // or navigate to a booking page
-    window.open("https://calendly.com/knight-nakanishi", "_blank");
+    window.location.href = "https://calendly.com/knightnakanishi/the-next-step-in-your-fitness-journey";
   };
 
   const benefits = [
     "Personalized strategy session",
     "Customized meal plan framework",
-    "30-minute implementation call",
+    "1 hour implementation call",
     "No commitment required",
   ];
 
@@ -87,4 +84,5 @@ const BookCallSection = () => {
 };
 
 export default BookCallSection;
+
 

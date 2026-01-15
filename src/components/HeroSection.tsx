@@ -7,10 +7,7 @@ const HeroSection = () => {
   };
 
   const handleBookCall = () => {
-    // TODO: Implement booking logic
-    // This should open a calendar booking widget (e.g., Calendly, Acuity, etc.)
-    // or navigate to a booking page
-    window.open("https://calendly.com/knight-nakanishi", "_blank");
+    window.location.href = "https://calendly.com/knightnakanishi/the-next-step-in-your-fitness-journey";
   };
 
   return (
@@ -45,8 +42,8 @@ const HeroSection = () => {
 
           {/* Subheadline */}
           <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl mx-auto mb-3 sm:mb-4 animate-slide-up px-4" style={{ animationDelay: "0.2s" }}>
-            Get lean, strong, and confident while still eating adobo, pho, nasi lemak, and pad thai. 
-            I'll show you how 200+ people transformed their bodies without giving up the foods they love.
+            Get lean, strong, and confident while still eating pho, nasi lemak, pad thai, and adobo, . 
+            I'll show you how 100+ people transformed their bodies without giving up the foods they love.
           </p>
 
           {/* VSL Video Placeholder */}
@@ -79,7 +76,7 @@ const HeroSection = () => {
               onClick={scrollToForm}
               className="font-display text-sm sm:text-base md:text-lg w-full sm:w-auto"
             >
-              Get Your Free Plan
+              Get A Free Plan
             </Button>
             
             {/* Divider */}
@@ -97,7 +94,7 @@ const HeroSection = () => {
               className="font-display text-sm sm:text-base md:text-lg w-full sm:w-auto group"
             >
               <Calendar className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-              Book a Free Call
+              Book a Strategy Call
             </Button>
           </div>
 

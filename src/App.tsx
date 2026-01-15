@@ -4,7 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
-import FatLossFormula from "./pages/FatLossFormula";
+import Cookbook from "./pages/Cookbook";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -17,7 +17,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/fat-loss-formula" element={<FatLossFormula />} />
+          <Route path="/cookbook" element={<Cookbook />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
