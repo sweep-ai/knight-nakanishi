@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Star, BookOpen, Calendar, ChefHat, CheckCircle, Download, Smartphone } from "lucide-react";
+import { ArrowRight, Star, BookOpen, Calendar, ChefHat, CheckCircle, Smartphone } from "lucide-react";
 import Footer from "@/components/Footer";
 import { PDF_URL, PDF_DOWNLOAD_NAME } from "@/config/pdfConfig";
 
@@ -209,10 +209,15 @@ const Cookbook = () => {
     },
   ];
 
+  const transformations = [
+    { name: "Blayze", result: "-40lbs in 4 months", image: "/transf4.jpg" },
+    { name: "Alman", result: "Lost 30 lbs", image: "/transf5.jpg" },
+  ];
+
   const testimonials = [
-    { name: "Maria, 27", location: "Philippines", result: "Lost 28lbs using the adobo and pancit recipes" },
-    { name: "Duc, 31", location: "Vietnam", result: "Built muscle eating pho and banh mi from the cookbook" },
-    { name: "Siti, 25", location: "Malaysia", result: "Lost 18lbs while still eating rendang weekly" },
+    { name: "Jorge, 27", location: "USA", result: "-60lbs in 7 months", quote: "I lost 60lbs in 7 months with a plan that actually fit my life. No crash diets—just steady progress and real support." },
+    { name: "Meadow, 31", location: "USA", result: "-25lbs in 3 months", quote: "I lost 25lbs in 3 months with a sustainable approach. No crazy restrictions—just consistency and the right support." },
+    { name: "Alman", location: "USA", result: "Lost 30 lbs", quote: "Lost 30 pounds while still eating his African cuisine with his family. He worked 2 jobs and was a full-time college student." },
   ];
 
   return (
@@ -293,69 +298,36 @@ const Cookbook = () => {
 
             {/* Mobile-optimized view */}
             {isMobile ? (
-              <div className="bg-card rounded-sm border border-border shadow-2xl p-6 sm:p-8">
-                <div className="text-center space-y-4 sm:space-y-6">
-                  {/* Mobile icon */}
-                  <div className="flex justify-center">
-                    <div className="w-16 h-16 sm:w-20 sm:h-20 bg-primary/10 rounded-full flex items-center justify-center">
-                      <Smartphone className="w-8 h-8 sm:w-10 sm:h-10 text-primary" />
-                    </div>
-                  </div>
-                  
-                  {/* Message */}
-                  <div>
-                    <h3 className="font-display text-xl sm:text-2xl text-foreground mb-2 sm:mb-3">
-                      View on Mobile
-                    </h3>
-                    <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6 max-w-md mx-auto">
-                      For the best viewing experience on mobile, download the cookbook to view all pages and recipes.
-                    </p>
-                  </div>
-
-                  {/* Download button */}
+              <div className="bg-card rounded-sm border border-border shadow-2xl overflow-hidden">
+                {/* Small PDF preview */}
+                <div className="relative w-full rounded-t-sm overflow-hidden bg-muted" style={{ height: "280px" }}>
+                  <iframe
+                    src={PDF_URL}
+                    className="w-full h-full border-0"
+                    title="Cookbook preview"
+                    style={{ height: "280px" }}
+                  />
+                </div>
+                <div className="p-5 sm:p-6 space-y-4">
+                  <p className="text-xs sm:text-sm text-muted-foreground text-center">
+                    Preview above. Open the full cookbook in another tab to browse all pages and recipes.
+                  </p>
                   <Button
                     variant="hero"
                     size="lg"
                     asChild
-                    className="font-display text-base sm:text-lg w-full sm:w-auto"
+                    className="font-display text-base sm:text-lg w-full"
                   >
                     <a
                       href={PDF_URL}
-                      download={PDF_DOWNLOAD_NAME}
-                      className="inline-flex items-center"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center justify-center"
                     >
-                      <Download className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                      Download Full Cookbook
+                      <BookOpen className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                      Open in another tab
                     </a>
                   </Button>
-
-                  {/* Alternative: Open in browser */}
-                  <div className="pt-4 border-t border-border">
-                    <p className="text-xs sm:text-sm text-muted-foreground mb-3">
-                      Or view in your browser:
-                    </p>
-                    <Button
-                      variant="outline"
-                      size="lg"
-                      asChild
-                      className="font-display text-sm sm:text-base w-full sm:w-auto"
-                    >
-                      <a
-                        href={PDF_URL}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center"
-                      >
-                        <BookOpen className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                        Open in Browser
-                      </a>
-                    </Button>
-                  </div>
-
-                  {/* Preview note */}
-                  <p className="text-xs text-muted-foreground/70 pt-2">
-                    The cookbook contains 25+ optimized Southeast Asian recipes with complete macro breakdowns.
-                  </p>
                 </div>
               </div>
             ) : (
@@ -469,6 +441,29 @@ const Cookbook = () => {
             </p>
           </div>
 
+          {/* Transformation photos */}
+          <div className="grid sm:grid-cols-2 gap-6 sm:gap-8 max-w-3xl mx-auto mb-10 sm:mb-12">
+            {transformations.map((t) => (
+              <div
+                key={t.image}
+                className="bg-card rounded-sm border border-border overflow-hidden shadow-lg"
+              >
+                <div className="aspect-[3/4] overflow-hidden bg-muted">
+                  <img
+                    src={t.image}
+                    alt={`${t.name}'s transformation`}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                </div>
+                <div className="p-4 sm:p-5 border-t border-border">
+                  <p className="font-bold text-sm sm:text-base text-foreground">{t.name}</p>
+                  <p className="text-xs sm:text-sm font-semibold text-primary uppercase tracking-wider">{t.result}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
           <div className="grid md:grid-cols-3 gap-4 sm:gap-6 max-w-5xl mx-auto">
             {testimonials.map((testimonial) => (
               <div
@@ -480,7 +475,10 @@ const Cookbook = () => {
                     <Star key={i} className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-accent text-accent" />
                   ))}
                 </div>
-                <p className="font-bold text-sm sm:text-base text-foreground mb-2">
+                <p className="text-sm sm:text-base text-foreground mb-3 sm:mb-4 leading-relaxed italic">
+                  "{testimonial.quote}"
+                </p>
+                <p className="font-bold text-sm sm:text-base text-foreground mb-1">
                   {testimonial.result}
                 </p>
                 <p className="text-xs sm:text-sm text-muted-foreground">

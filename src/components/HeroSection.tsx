@@ -62,7 +62,7 @@ const HeroSection = () => {
               {/* Video label */}
               <div className="absolute bottom-1.5 sm:bottom-2 left-2 sm:left-3 right-2 sm:right-3">
                 <p className="text-[10px] sm:text-xs text-muted-foreground text-center">
-                  Watch: How 200+ People Transformed Without Giving Up Their Favorite Foods
+                  Watch: How 100+ People Transformed Without Giving Up Their Favorite Foods
                 </p>
               </div>
             </div>

@@ -3,21 +3,19 @@ import { Star, Quote } from "lucide-react";
 const TestimonialsTransformationsSection = () => {
   const testimonials = [
     {
-      name: "Maria",
+      name: "Jorge",
       age: 27,
-      location: "Philippines",
-      quote: "I lost 28lbs while still eating adobo and pancit every week. Knight showed me how to make my favorite foods work for my goals.",
-      result: "Lost 28lbs",
-      foodHighlight: "Adobo & Pancit",
+      location: "USA",
+      quote: "I lost 60lbs in 7 months with a plan that actually fit my life. No crash diets—just steady progress and real support.",
+      result: "-60lbs in 7 months",
       transformationImage: "/transf1.jpg",
     },
     {
-      name: "Duc",
+      name: "Meadow",
       age: 31,
-      location: "Vietnam",
-      quote: "Built lean muscle eating pho and banh mi. Finally found a way to gain muscle without giving up my cultural foods.",
-      result: "Gained 15lbs Muscle",
-      foodHighlight: "Pho & Banh Mi",
+      location: "USA",
+      quote: "I lost 25lbs in 3 months with a sustainable approach. No crazy restrictions—just consistency and the right support.",
+      result: "-25lbs in 3 months",
       transformationImage: "/transf2.jpg",
     },
     {
@@ -61,12 +59,6 @@ const TestimonialsTransformationsSection = () => {
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     loading="lazy"
                   />
-                  {/* Result badge overlay */}
-                  <div className="absolute top-3 sm:top-4 left-3 sm:left-4 px-2.5 sm:px-3 py-1 sm:py-1.5 bg-primary/90 backdrop-blur-sm rounded-sm">
-                    <span className="text-xs sm:text-sm font-bold text-accent uppercase tracking-wider">
-                      {testimonial.result}
-                    </span>
-                  </div>
                 </div>
 
                 {/* Testimonial Content */}
@@ -96,10 +88,10 @@ const TestimonialsTransformationsSection = () => {
                         {testimonial.location}
                       </p>
                     </div>
-                    {/* Food highlight badge */}
+                    {/* Result / weight stat badge */}
                     <div className="px-2 sm:px-2.5 py-1 sm:py-1.5 bg-accent/20 rounded-sm flex-shrink-0">
                       <span className="text-[10px] sm:text-xs font-bold text-accent uppercase">
-                        {testimonial.foodHighlight}
+                        {testimonial.result}
                       </span>
                     </div>
                   </div>

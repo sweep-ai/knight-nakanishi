@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ArrowRight, ArrowLeft, ArrowDown, Loader2, CheckCircle } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { QUIZ_SHEET_WEB_APP_URL } from "@/config/quizSheetConfig";
 
 interface QuizAnswers {
   goal: string;
@@ -134,21 +135,34 @@ const QuizHeroSection = () => {
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.name || !formData.email) {
+    if (!formData.name || !formData.email || !formData.phone?.trim()) {
       toast({
         title: "Almost there!",
-        description: "Please fill in your name and email.",
+        description: "Please fill in your name, email, and phone number.",
         variant: "destructive",
       });
       return;
     }
 
     setIsSubmitting(true);
-    
+
     try {
-      // TODO: Send lead magnet (cookbook) to prospect
-      // await sendCookbook(formData.email, formData.name, answers);
-      
+      if (QUIZ_SHEET_WEB_APP_URL) {
+        await fetch(QUIZ_SHEET_WEB_APP_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: formData.name.trim(),
+            email: formData.email.trim(),
+            phone: formData.phone.trim(),
+            goal: answers.goal,
+            experience: answers.experience,
+            biggestChallenge: answers.biggestChallenge,
+          }),
+        });
+      }
+
       toast({
         title: "Resource ready! 🎉",
         description: "Your free resource is ready to view below.",
@@ -196,6 +210,21 @@ const QuizHeroSection = () => {
       {/* Content */}
       <div className="container relative z-10 px-4 sm:px-6 pt-2 sm:pt-8 pb-4 sm:pb-8 md:py-10">
         <div className="max-w-3xl mx-auto">
+          {/* Logo */}
+          <div className="flex justify-center mb-2 sm:mb-4">
+            <button
+              type="button"
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+              className="focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-sm"
+              aria-label="Knight Fit - Go to top"
+            >
+              <img
+                src="/Logo.png"
+                alt="Knight Fit"
+                className="h-20 sm:h-28 md:h-32 lg:h-40 xl:h-44 w-auto object-contain"
+              />
+            </button>
+          </div>
           {/* Pre-headline badge */}
           <div className="flex justify-center mb-3 sm:mb-4 animate-fade-in">
             <div className="inline-flex items-center gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 border border-primary/30 bg-primary/10 rounded-sm">
@@ -343,7 +372,7 @@ const QuizHeroSection = () => {
                   {/* Phone */}
                   <div className="space-y-2">
                     <Label htmlFor="phone" className="text-xs sm:text-sm font-medium uppercase tracking-wider">
-                      Phone <span className="text-muted-foreground">(Optional)</span>
+                      Phone
                     </Label>
                     <Input
                       id="phone"
@@ -352,6 +381,7 @@ const QuizHeroSection = () => {
                       value={formData.phone}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                       className="h-11 sm:h-12 bg-muted border-border focus:border-primary text-sm sm:text-base"
+                      required
                     />
                   </div>
 
