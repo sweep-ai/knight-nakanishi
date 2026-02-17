@@ -9,8 +9,7 @@ const BookCallSection = () => {
   const benefits = [
     "Personalized strategy session",
     "Customized meal plan framework",
-    "1 hour implementation call",
-    "No commitment required",
+    "1 hour implementation call"
   ];
 
   return (
@@ -43,7 +42,7 @@ const BookCallSection = () => {
 
           {/* Subheadline */}
           <p className="text-base sm:text-lg md:text-xl text-primary-foreground/80 mb-5 sm:mb-6 max-w-xl mx-auto px-4">
-            Skip the guide. Let's talk directly about your goals and create a personalized plan that fits your lifestyle.
+            Skip the quiz. Let's talk directly about your goals and create a personalized plan that fits your lifestyle.
           </p>
 
           {/* Benefits */}
