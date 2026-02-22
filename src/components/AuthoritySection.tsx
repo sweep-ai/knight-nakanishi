@@ -44,16 +44,13 @@ const AuthoritySection = () => {
 
               <div className="space-y-3 sm:space-y-4 text-sm sm:text-base text-secondary-foreground/80 mb-6 sm:mb-8">
                 <p>
-                  I'm Knight Nakanishi. I help hundreds of people get in the best shape of their lives without abandoning their culture.
+                  I'm Knight Nakanishi. Born in Broward County to a Thai mom and Japanese dad, I grew up in a full Thai household. At 10 I lost my father. Football became my outlet and saved my life.
                 </p>
                 <p>
-                  When I was 10, my family struggled. Football was my outlet. But when anhidrosis made playing hard, fitness gave me a second chance. It taught me discipline, resilience, and that your circumstances don't define you.
+                  In high school anhidrosis took football away. I turned to lifting; a year later I was cleared to play. My senior year I lost my uncle and my grandpa within months. I coped with binge eating and partying and gained 50 pounds. I had 14 scholarship offers but didn't feel like myself. I got the weight off, became ISSA certified, and launched online coaching in July 2024. My clients got better results with the accountability that in-person coaching couldn't match.
                 </p>
                 <p>
-                  Now, I'm on a mission: prove that you don't need to eat cut out your cultural foods to look and feel incredible. Your food isn't the problem. Bad programming is.
-                </p>
-                <p className="font-medium text-secondary-foreground">
-                  I've helped 100+ people from the Vietnam, Malaysia, Thailand, Philippines, and beyond transform their bodies while eating the foods they grew up with. No BS. No restrictions. Just results.
+                  I've seen the struggle of growing up with a Thai single mom. Our food is the best in the world. Why give it up to get in shape? I help people from Vietnam, Malaysia, Thailand, the Philippines, and beyond transform their bodies while eating the foods they grew up with. No BS. No restrictions. Just results.
                 </p>
               </div>
 
