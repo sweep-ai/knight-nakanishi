@@ -24,8 +24,23 @@ const TestimonialsTransformationsSection = () => {
       location: "Football player",
       quote: "Lost 18lbs while still eating rendang weekly. The recipes in the cookbook changed everything for me.",
       result: "Lost 18lbs",
-      foodHighlight: "Rendang",
       transformationImage: "/transf3.jpeg",
+    },
+    {
+      name: "Prong",
+      age: 28,
+      location: "USA",
+      quote: "I  was a busy bio research student and working a job. I felt very unconfident, but now I'm in the best shape of my life.",
+      result: "Healthiest ever",
+      transformationImage: "/transf6.jpeg",
+    },
+    {
+      name: "Toss",
+      age: 34,
+      location: "USA",
+      quote: "I lost 150 pounds in a year and a half while running a business and raising two kids as a single mom. No crazy restrictions, just a plan that fit my real life.",
+      result: "Lost 150 lbs in 1.5 years",
+      transformationImage: "/transf7.jpg",
     },
   ];
 
@@ -52,11 +67,17 @@ const TestimonialsTransformationsSection = () => {
               {/* Card with gradient border effect */}
               <div className="relative bg-card rounded-sm border border-border overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300">
                 {/* Transformation Image */}
-                <div className="relative w-full aspect-[3/4] overflow-hidden bg-muted">
+                <div
+                  className={`relative w-full aspect-[3/4] overflow-hidden ${
+                    testimonial.transformationImage === "/transf7.jpg" ? "bg-white" : "bg-muted"
+                  }`}
+                >
                   <img
                     src={testimonial.transformationImage}
                     alt={`${testimonial.name}'s transformation`}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    className={`w-full h-full group-hover:scale-105 transition-transform duration-300 ${
+                      testimonial.transformationImage === "/transf7.jpg" ? "object-contain" : "object-cover"
+                    }`}
                     loading="lazy"
                   />
                 </div>
