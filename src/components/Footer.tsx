@@ -1,6 +1,10 @@
 import { Instagram, Youtube, Mail } from "lucide-react";
 
-const Footer = () => {
+interface FooterProps {
+  variant?: "default" | "whop";
+}
+
+const Footer = ({ variant = "default" }: FooterProps) => {
   return (
     <footer className="py-8 sm:py-10 md:py-12 section-dark border-t border-border">
       <div className="container px-4 sm:px-6">
@@ -11,7 +15,7 @@ const Footer = () => {
               Knight Nakanishi <span className="text-primary">Fitness</span>
             </h3>
             <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-              Transform without sacrifice
+              {variant === "whop" ? "Culture-first fitness coaching" : "Transform without sacrifice"}
             </p>
           </div>
 

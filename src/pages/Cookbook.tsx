@@ -7,7 +7,9 @@ import { PDF_URL, PDF_DOWNLOAD_NAME } from "@/config/pdfConfig";
 
 const Cookbook = () => {
   const [searchParams] = useSearchParams();
-  const goal = searchParams.get("goal") || "lose-fat";
+  const rawGoal = searchParams.get("goal") || "lose-fat";
+  /** Whop funnel quiz uses this alias so the landing page avoids fat-loss framing */
+  const goal = rawGoal === "cultural-habits" ? "healthy-traditional" : rawGoal;
   const experience = searchParams.get("experience") || "beginner";
   const challenge = searchParams.get("challenge") || "time";
 

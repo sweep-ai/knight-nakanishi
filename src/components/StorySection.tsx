@@ -1,10 +1,19 @@
 import { Button } from "@/components/ui/button";
 import { Heart, AlertTriangle, Flame } from "lucide-react";
 
-const StorySection = () => {
+interface StorySectionProps {
+  variant?: "default" | "whop";
+}
+
+const StorySection = ({ variant = "default" }: StorySectionProps) => {
   const handleBookCall = () => {
     window.location.href = "https://calendly.com/knightnakanishi/the-next-step-in-your-fitness-journey";
   };
+
+  const breakthroughDefault =
+    "Fitness saved my life. It gave me purpose again. Now I help people like you—Southeast Asians who've been told they need to eat 'clean' to get results. That's BS.";
+  const breakthroughWhop =
+    "Fitness saved my life. It gave me purpose again. Now I help people like you—Southeast Asians who've been told they have to give up their food to 'do it right.' I don't coach that way.";
 
   const storyCards = [
     {
@@ -25,7 +34,7 @@ const StorySection = () => {
       icon: Flame,
       age: "Present Day",
       title: "The Breakthrough",
-      text: "Fitness saved my life. It gave me purpose again. Now I help people like you—Southeast Asians who've been told they need to eat 'clean' to get results. That's BS.",
+      text: variant === "whop" ? breakthroughWhop : breakthroughDefault,
       accent: "primary",
     },
   ];

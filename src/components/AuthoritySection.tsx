@@ -1,11 +1,16 @@
 import { Award, Users, Calendar, Dumbbell } from "lucide-react";
 
-const AuthoritySection = () => {
+interface AuthoritySectionProps {
+  variant?: "default" | "whop";
+}
+
+const AuthoritySection = ({ variant = "default" }: AuthoritySectionProps) => {
+  const isWhop = variant === "whop";
   const credentials = [
     { icon: Award, text: "Certified Personal Trainer" },
     { icon: Dumbbell, text: "Sports Nutrition Specialist" },
     { icon: Calendar, text: "5+ Years Coaching Experience" },
-    { icon: Users, text: "200+ Clients Transformed" },
+    { icon: Users, text: isWhop ? "200+ Clients Coached" : "200+ Clients Transformed" },
   ];
 
   return (
@@ -31,7 +36,7 @@ const AuthoritySection = () => {
               <div className="absolute -bottom-4 -right-4 sm:-bottom-6 sm:-right-6 p-3 sm:p-4 bg-primary rounded-sm shadow-xl">
                 <p className="font-display text-2xl sm:text-3xl md:text-4xl text-accent">100+</p>
                 <p className="text-xs sm:text-sm text-accent/80 uppercase tracking-wider">
-                  Lives Changed
+                  {isWhop ? "Clients Coached" : "Lives Changed"}
                 </p>
               </div>
             </div>
@@ -47,10 +52,26 @@ const AuthoritySection = () => {
                   I'm Knight Nakanishi. Born in Broward County to a Thai mom and Japanese dad, I grew up in a full Thai household. At 10 I lost my father. Football became my outlet and saved my life.
                 </p>
                 <p>
-                  In high school anhidrosis took football away. I turned to lifting; a year later I was cleared to play. My senior year I lost my uncle and my grandpa within months. I coped with binge eating and partying and gained 50 pounds. I had 14 scholarship offers but didn't feel like myself. I got the weight off, became ISSA certified, and launched online coaching in July 2024. My clients got better results with the accountability that in-person coaching couldn't match.
+                  {isWhop ? (
+                    <>
+                      In high school anhidrosis took football away. I turned to lifting; a year later I was cleared to play. My senior year I lost my uncle and my grandpa within months. I coped with binge eating and partying and my health and energy took a hit. I had 14 scholarship offers but didn&apos;t feel like myself. I rebuilt my training and nutrition habits, became ISSA certified, and launched online coaching in July 2024. My clients stayed more consistent with the accountability that in-person coaching couldn&apos;t match.
+                    </>
+                  ) : (
+                    <>
+                      In high school anhidrosis took football away. I turned to lifting; a year later I was cleared to play. My senior year I lost my uncle and my grandpa within months. I coped with binge eating and partying and gained 50 pounds. I had 14 scholarship offers but didn&apos;t feel like myself. I got the weight off, became ISSA certified, and launched online coaching in July 2024. My clients got better results with the accountability that in-person coaching couldn&apos;t match.
+                    </>
+                  )}
                 </p>
                 <p>
-                  I've seen the struggle of growing up with a Thai single mom. Our food is the best in the world. Why give it up to get in shape? I help people from Vietnam, Malaysia, Thailand, the Philippines, and beyond transform their bodies while eating the foods they grew up with. No BS. No restrictions. Just results.
+                  {isWhop ? (
+                    <>
+                      I&apos;ve seen the struggle of growing up with a Thai single mom. Our food is the best in the world—and it belongs in your plan. I help people from Vietnam, Malaysia, Thailand, the Philippines, and beyond build fitness and nutrition habits around the foods they grew up with. No BS. No gimmicks—just coaching that fits real life.
+                    </>
+                  ) : (
+                    <>
+                      I&apos;ve seen the struggle of growing up with a Thai single mom. Our food is the best in the world. Why give it up to get in shape? I help people from Vietnam, Malaysia, Thailand, the Philippines, and beyond transform their bodies while eating the foods they grew up with. No BS. No restrictions. Just results.
+                    </>
+                  )}
                 </p>
               </div>
 

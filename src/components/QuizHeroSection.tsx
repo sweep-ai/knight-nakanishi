@@ -13,7 +13,13 @@ interface QuizAnswers {
   biggestChallenge: string;
 }
 
-const QuizHeroSection = () => {
+interface QuizHeroSectionProps {
+  /** Whop marketplace: no fat-loss or guaranteed physique claims */
+  variant?: "default" | "whop";
+}
+
+const QuizHeroSection = ({ variant = "default" }: QuizHeroSectionProps) => {
+  const isWhop = variant === "whop";
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState<"quiz" | "form">("quiz");
   const [quizStep, setQuizStep] = useState(0);
@@ -29,11 +35,30 @@ const QuizHeroSection = () => {
     phone: "",
   });
 
-  const questions = [
-    {
-      id: "goal",
-      question: "How can I help you...",
-      options: [
+  const goalOptions = isWhop
+    ? [
+        {
+          value: "cultural-habits",
+          label: "Build sustainable habits with my favorite foods",
+          description: "Structure and consistency—without giving up adobo, pho, or pad thai",
+        },
+        {
+          value: "gain-muscle",
+          label: "Gain muscle without changing your lifestyle",
+          description: "Build strength while keeping your cultural meals",
+        },
+        {
+          value: "body-confidence",
+          label: "Be confident in your own body",
+          description: "Feel strong and proud in your own skin",
+        },
+        {
+          value: "healthy-traditional",
+          label: "Be the healthiest you've ever been, still eating your traditional foods",
+          description: "Optimal health that honors your culture",
+        },
+      ]
+    : [
         {
           value: "lose-fat",
           label: "Lose fat while eating your favorite foods",
@@ -54,12 +79,32 @@ const QuizHeroSection = () => {
           label: "Be the healthiest you've ever been, still eating your traditional foods",
           description: "Optimal health that honors your culture",
         },
-      ],
-    },
-    {
-      id: "experience",
-      question: "What's your experience with fitness?",
-      options: [
+      ];
+
+  const experienceOptions = isWhop
+    ? [
+        {
+          value: "beginner",
+          label: "Just starting out",
+          description: "New to structured fitness and nutrition",
+        },
+        {
+          value: "tried-before",
+          label: "Tried before but nothing stuck",
+          description: "Past attempts didn't work with your lifestyle",
+        },
+        {
+          value: "some-experience",
+          label: "Some experience, need guidance",
+          description: "Know the basics but want personalized help",
+        },
+        {
+          value: "experienced",
+          label: "Experienced but stuck",
+          description: "Know what to do but need clearer structure and accountability",
+        },
+      ]
+    : [
         {
           value: "beginner",
           label: "Just starting out",
@@ -80,7 +125,18 @@ const QuizHeroSection = () => {
           label: "Experienced but stuck",
           description: "Know what to do but not getting results",
         },
-      ],
+      ];
+
+  const questions = [
+    {
+      id: "goal",
+      question: "How can I help you...",
+      options: goalOptions,
+    },
+    {
+      id: "experience",
+      question: "What's your experience with fitness?",
+      options: experienceOptions,
     },
     {
       id: "biggestChallenge",
@@ -230,7 +286,7 @@ const QuizHeroSection = () => {
             <div className="inline-flex items-center gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 border border-primary/30 bg-primary/10 rounded-sm">
               <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-primary animate-pulse" />
               <span className="text-xs font-medium text-primary uppercase tracking-wider">
-                100+ Clients Transformed
+                {isWhop ? "100+ Clients Coached" : "100+ Clients Transformed"}
               </span>
             </div>
           </div>
@@ -244,8 +300,17 @@ const QuizHeroSection = () => {
 
           {/* Subheadline */}
           <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl mx-auto mb-6 sm:mb-8 animate-slide-up px-4 text-center" style={{ animationDelay: "0.2s" }}>
-            Get lean, strong, and confident while still eating adobo, pho, nasi lemak, and pad thai. 
-            I'll show you how 200+ people transformed their bodies without giving up the foods they love.
+            {isWhop ? (
+              <>
+                Build strength, energy, and confidence while still enjoying adobo, pho, nasi lemak, and pad thai.
+                I&apos;ve helped 200+ people build fitness habits that fit their culture—without giving up the foods they love.
+              </>
+            ) : (
+              <>
+                Get lean, strong, and confident while still eating adobo, pho, nasi lemak, and pad thai.
+                I&apos;ll show you how 200+ people transformed their bodies without giving up the foods they love.
+              </>
+            )}
           </p>
 
           {/* Quiz or Form */}

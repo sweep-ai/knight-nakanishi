@@ -1,7 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Zap } from "lucide-react";
 
-const FinalCTASection = () => {
+interface FinalCTASectionProps {
+  variant?: "default" | "whop";
+}
+
+const FinalCTASection = ({ variant = "default" }: FinalCTASectionProps) => {
+  const isWhop = variant === "whop";
   const scrollToForm = () => {
     document.getElementById("lead-form")?.scrollIntoView({ behavior: "smooth" });
   };
@@ -36,7 +41,9 @@ const FinalCTASection = () => {
 
           {/* Subheadline */}
           <p className="text-base sm:text-lg md:text-xl text-primary-foreground/80 mb-8 sm:mb-10 max-w-xl mx-auto px-4">
-            Get your personalized transformation plan—designed around YOUR food, YOUR schedule, YOUR goals.
+            {isWhop
+              ? "Get a personalized coaching plan—built around YOUR food, YOUR schedule, and YOUR goals."
+              : "Get your personalized transformation plan—designed around YOUR food, YOUR schedule, YOUR goals."}
           </p>
 
           {/* CTA Button */}
@@ -52,7 +59,9 @@ const FinalCTASection = () => {
 
           {/* Trust line */}
           <p className="mt-4 sm:mt-6 text-xs sm:text-sm text-primary-foreground/60 px-4">
-            Join 200+ Southeast Asians who transformed without giving up their culture
+            {isWhop
+              ? "Join 200+ Southeast Asians who upgraded their fitness without giving up their culture"
+              : "Join 200+ Southeast Asians who transformed without giving up their culture"}
           </p>
         </div>
       </div>

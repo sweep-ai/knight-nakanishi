@@ -1,11 +1,18 @@
 import { UtensilsCrossed, Clock, RefreshCw } from "lucide-react";
 
-const PainPointsSection = () => {
+interface PainPointsSectionProps {
+  variant?: "default" | "whop";
+}
+
+const PainPointsSection = ({ variant = "default" }: PainPointsSectionProps) => {
   const painPoints = [
     {
       icon: UtensilsCrossed,
       title: "Tired of 'Fitness Plans' That Ignore Your Food",
-      text: "You're sick of coaches telling you to eat grilled chicken and rice (the bland kind). You want results but not at the cost of your identity.",
+      text:
+        variant === "whop"
+          ? "You're sick of coaches telling you to eat grilled chicken and rice (the bland kind). You want a plan that fits who you are—not one that erases your culture."
+          : "You're sick of coaches telling you to eat grilled chicken and rice (the bland kind). You want results but not at the cost of your identity.",
     },
     {
       icon: Clock,
@@ -15,7 +22,10 @@ const PainPointsSection = () => {
     {
       icon: RefreshCw,
       title: "Tried Everything, Nothing Sticks",
-      text: "Diets failed. Apps didn't work. You're tired of starting over. You need a system that actually fits YOUR life.",
+      text:
+        variant === "whop"
+          ? "Plans didn't stick. Apps didn't fit your life. You're tired of starting over. You need a system that actually fits YOUR life."
+          : "Diets failed. Apps didn't work. You're tired of starting over. You need a system that actually fits YOUR life.",
     },
   ];
 
