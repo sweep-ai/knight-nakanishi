@@ -1,4 +1,5 @@
 import { Instagram, Youtube, Mail } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface FooterProps {
   variant?: "default" | "whop";
@@ -45,9 +46,18 @@ const Footer = ({ variant = "default" }: FooterProps) => {
           </div>
 
           {/* Copyright */}
-          <p className="text-xs sm:text-sm text-muted-foreground text-center md:text-left order-3 md:order-3">
-            © {new Date().getFullYear()} Knight Nakanishi Fitness. All rights reserved.
-          </p>
+          <div className="text-xs sm:text-sm text-muted-foreground text-center md:text-left order-3 md:order-3 space-y-1">
+            <p>© {new Date().getFullYear()} Nakanishi Consulting LLC operating as Knight Fit. All rights reserved.</p>
+            <p className="flex items-center justify-center md:justify-start gap-3">
+              <Link to="/privacy" className="hover:text-primary">
+                Privacy Policy
+              </Link>
+              <span aria-hidden="true">·</span>
+              <Link to="/tos" className="hover:text-primary">
+                Terms of Service
+              </Link>
+            </p>
+          </div>
         </div>
       </div>
     </footer>

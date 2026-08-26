@@ -8,7 +8,7 @@ interface FinalCTASectionProps {
 const FinalCTASection = ({ variant = "default" }: FinalCTASectionProps) => {
   const isWhop = variant === "whop";
   const scrollToForm = () => {
-    document.getElementById("lead-form")?.scrollIntoView({ behavior: "smooth" });
+    document.getElementById("application-form")?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
@@ -53,7 +53,7 @@ const FinalCTASection = ({ variant = "default" }: FinalCTASectionProps) => {
             onClick={scrollToForm}
             className="font-display text-base sm:text-lg md:text-xl group w-full sm:w-auto"
           >
-            Get My Plan Now
+            Start Your Transformation
             <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
           </Button>
 
