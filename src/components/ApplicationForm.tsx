@@ -7,7 +7,7 @@ import { ArrowLeft, ArrowRight, CheckCircle, Loader2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { QUIZ_SHEET_WEB_APP_URL } from "@/config/quizSheetConfig";
 import { APPLICANT_STORAGE_KEY, FORM_ID } from "@/config/funnel";
-import { getSessionId, submitLead, trackEvent } from "@/lib/sweep";
+import { getSessionId, trackEvent } from "@/lib/sweep";
 import {
   findOption,
   getQuizSteps,
@@ -159,20 +159,48 @@ const ApplicationForm = ({ variant = "default" }: ApplicationFormProps) => {
     try {
       const sessionId = getSessionId();
       const idempotencyKey = `form_submit_${sessionId}_${FORM_ID}`;
-      void trackEvent("form_submit", { form_id: FORM_ID, leadStatus }, idempotencyKey);
+      const visitorId =
+        typeof localStorage !== "undefined"
+          ? localStorage.getItem("sweep_visitor_id") || undefined
+          : undefined;
 
-      const leadResult = await submitLead({
-        email: answers.email.trim(),
-        name: answers.name.trim(),
-        phone: answers.phone.trim(),
-        instagram: answers.social.trim() || undefined,
-        source: "quiz",
-        funnel_step_reached: "form_submit",
-        quiz_answers: quizAnswers,
-        notes: `${leadStatus}. Goal: ${goal.label}. Readiness: ${readiness.label}. Occupation: ${answers.occupation.trim()}.`,
+      // Server proxies Sweep + Zapier + GHL (avoids browser CORS / empty Zapier bodies)
+      const submitRes = await fetch("/api/quiz-submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: answers.name.trim(),
+          email: answers.email.trim(),
+          phone: answers.phone.trim(),
+          social: answers.social.trim(),
+          occupation: answers.occupation.trim(),
+          age: answers.age.trim(),
+          leadStatus,
+          dqReason,
+          formId: FORM_ID,
+          visitorId,
+          sessionId,
+          idempotencyKey,
+          quizAnswers,
+          notes: `${leadStatus}. Goal: ${goal.label}. Readiness: ${readiness.label}. Occupation: ${answers.occupation.trim()}.`,
+          culturalFoods: culturalFoods.label,
+          culturalFoods_code: culturalFoods.code,
+          situation: situation.label,
+          situation_code: situation.code,
+          goal: goal.label,
+          goal_code: goal.code,
+          readiness: readiness.label,
+          readiness_code: readiness.code,
+          pageUrl: typeof window !== "undefined" ? window.location.href : undefined,
+          pageTitle: typeof document !== "undefined" ? document.title : undefined,
+        }),
       });
-      if (leadResult.error) {
-        console.error("submitLead:", leadResult.error);
+      if (!submitRes.ok) {
+        const detail = await submitRes.json().catch(() => ({}));
+        console.error("quiz-submit:", detail);
+      } else {
+        const detail = await submitRes.json().catch(() => ({}));
+        console.info("quiz-submit results:", detail);
       }
 
       if (QUIZ_SHEET_WEB_APP_URL) {
@@ -194,46 +222,6 @@ const ApplicationForm = ({ variant = "default" }: ApplicationFormProps) => {
           }),
         });
       }
-
-      const zapierWebhookUrl = import.meta.env.VITE_ZAPIER_WEBHOOK_URL;
-      if (zapierWebhookUrl) {
-        void fetch(zapierWebhookUrl, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name: answers.name.trim(),
-            email: answers.email.trim(),
-            phone: answers.phone.trim(),
-            social: answers.social.trim(),
-            occupation: answers.occupation.trim(),
-            age: answers.age.trim(),
-            culturalFoods: culturalFoods.label,
-            culturalFoods_code: culturalFoods.code,
-            situation: situation.label,
-            situation_code: situation.code,
-            goal: goal.label,
-            goal_code: goal.code,
-            readiness: readiness.label,
-            readiness_code: readiness.code,
-            leadStatus,
-            dqReason,
-            timestamp: new Date().toISOString(),
-          }),
-        }).catch((err) => console.error("Zapier webhook error:", err));
-      }
-
-      // Server-side only — token never exposed to Vite client bundle
-      void fetch("/api/ghl-contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: answers.name.trim(),
-          email: answers.email.trim(),
-          phone: answers.phone.trim(),
-          source: "quiz",
-          notes: `${leadStatus}. Goal: ${goal.label}.`,
-        }),
-      }).catch((err) => console.error("GHL contact error:", err));
 
       sessionStorage.setItem(
         APPLICANT_STORAGE_KEY,

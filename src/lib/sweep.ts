@@ -61,14 +61,21 @@ export async function trackEvent(
   if (idempotencyKey) body.idempotency_key = idempotencyKey;
 
   try {
-    const res = await fetch(`${API_BASE_URL}/funnels/events`, {
+    // Same-origin proxy — Sweep API CORS blocks browser origins in prod/local.
+    const res = await fetch("/api/sweep-event", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
     if (!res.ok) {
       const detail = await res.json().catch(() => ({}));
-      return { ok: false, error: (detail as { detail?: string }).detail ?? res.statusText };
+      return {
+        ok: false,
+        error:
+          (detail as { detail?: string; error?: string }).detail ??
+          (detail as { error?: string }).error ??
+          res.statusText,
+      };
     }
     const data = (await res.json()) as { event_id?: string; status?: string };
     return {
