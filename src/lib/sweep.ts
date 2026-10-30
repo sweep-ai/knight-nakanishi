@@ -38,13 +38,44 @@ export function getSessionId(): string {
   return s;
 }
 
+const UTM_KEYS = ["source", "medium", "campaign", "term", "content"] as const;
+export type Utm = Partial<Record<(typeof UTM_KEYS)[number], string>>;
+
+/** Landing-page UTM, cached for the tab. Events want unprefixed keys under metadata.utm. */
+export function getUtm(): Utm | undefined {
+  if (typeof window === "undefined") return undefined;
+  const key = "sweep_utm";
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const fresh: Utm = {};
+    for (const name of UTM_KEYS) {
+      const value = params.get(`utm_${name}`)?.trim();
+      if (value) fresh[name] = value;
+    }
+    if (Object.keys(fresh).length) sessionStorage.setItem(key, JSON.stringify(fresh));
+    const raw = sessionStorage.getItem(key);
+    if (!raw) return undefined;
+    const parsed = JSON.parse(raw) as Utm;
+    const cleaned: Utm = {};
+    for (const name of UTM_KEYS) {
+      const value = parsed[name]?.trim();
+      if (value) cleaned[name] = value;
+    }
+    return Object.keys(cleaned).length ? cleaned : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 export async function trackEvent(
   eventName: string,
   metadata: Record<string, unknown> = {},
-  idempotencyKey?: string
+  idempotencyKey?: string,
+  options?: { keepalive?: boolean }
 ): Promise<TrackResult> {
   if (!FUNNEL_ID) return { ok: false, error: "FUNNEL_ID not configured" };
 
+  const utm = getUtm();
   const body: Record<string, unknown> = {
     funnel_id: FUNNEL_ID,
     event_name: eventName,
@@ -52,6 +83,7 @@ export async function trackEvent(
     session_id: getSessionId(),
     metadata: {
       ...metadata,
+      ...(utm && !metadata.utm ? { utm } : {}),
       page_url: typeof window !== "undefined" ? window.location.href : undefined,
       page_title: typeof document !== "undefined" ? document.title : undefined,
       referrer: typeof document !== "undefined" ? document.referrer || undefined : undefined,
@@ -66,6 +98,7 @@ export async function trackEvent(
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
+      keepalive: options?.keepalive,
     });
     if (!res.ok) {
       const detail = await res.json().catch(() => ({}));

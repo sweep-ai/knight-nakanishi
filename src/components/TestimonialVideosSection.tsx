@@ -57,8 +57,8 @@ const TestimonialVideosSection = () => {
     <section className="py-10 sm:py-14 section-dark">
       <div className="container px-4 sm:px-6">
         <div className="text-center mb-6 sm:mb-8">
-          <h2 className="font-display text-3xl sm:text-4xl md:text-5xl">
-            Client <span className="text-primary">Stories</span>
+          <h2 className="font-display text-4xl sm:text-5xl md:text-6xl leading-[1.04]">
+            Client <span className="text-accent">Stories</span>
           </h2>
         </div>
         <div className="grid grid-cols-2 gap-3 sm:gap-4 max-w-3xl mx-auto">

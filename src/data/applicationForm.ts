@@ -20,13 +20,19 @@ export type OccupancyStep = {
   prompt: string;
 };
 
+export type HistoryStep = {
+  id: "priorAttempts";
+  type: "history";
+  prompt: string;
+};
+
 export type ContactStep = {
   id: "contact";
   type: "contact";
   prompt: string;
 };
 
-export type QuizStep = ChoiceStep | OccupancyStep | ContactStep;
+export type QuizStep = ChoiceStep | OccupancyStep | HistoryStep | ContactStep;
 
 const culturalFoodsStep: ChoiceStep = {
   id: "culturalFoods",
@@ -41,27 +47,48 @@ const culturalFoodsStep: ChoiceStep = {
 const situationStep: ChoiceStep = {
   id: "situation",
   type: "single",
-  prompt: "What's your biggest challenge right now?",
+  prompt: "Which best describes your situation?",
   options: [
-    { value: "time", label: "Finding time for meal prep", description: "Busy schedule makes healthy eating hard" },
-    { value: "family-meals", label: "Balancing family meals with goals", description: "Family dinners make it difficult to stay on track" },
-    { value: "motivation", label: "Staying motivated and consistent", description: "Starting is easy, sticking with it is hard" },
-    { value: "knowledge", label: "Not knowing what actually works", description: "Too much conflicting information out there" },
+    {
+      value: "family-events",
+      label: "Issues at family dinners and events",
+      description: "Mom's cooking, parties, people always offering food",
+    },
+    {
+      value: "time",
+      label: "Finding the time",
+      description: "Work and life eat up the whole day",
+    },
+    {
+      value: "consistency",
+      label: "Staying consistent",
+      description: "I start strong, then fall off",
+    },
+    {
+      value: "conflicting-advice",
+      label: "Not knowing what actually works",
+      description: "Too much advice that contradicts itself",
+    },
   ],
+};
+
+const historyStep: HistoryStep = {
+  id: "priorAttempts",
+  type: "history",
+  prompt: "What have you tried before and what happened?",
 };
 
 const readinessStep: ChoiceStep = {
   id: "readiness",
   type: "single",
-  prompt: "If this is the right fit, are you ready to invest in coaching?",
+  prompt: "Coaching is a real investment. If things are a perfect fit, how ready are you to start?",
   options: [
-    { value: "ready-now", label: "Yes, I'm ready this month", description: "I want a plan and accountability now" },
-    { value: "ready-if-fit", label: "Yes, if it's the right fit", description: "I want to talk it through on a call" },
-    { value: "need-to-think", label: "I need to think about budget", description: "I might be ready after we talk" },
+    { value: "ready-now", label: "I'm ready, I need this now" },
+    { value: "ready-this-week", label: "I can be ready in the week" },
+    { value: "ready-30-days", label: "Hopefully in the next 30 days" },
     {
-      value: "not-investing",
-      label: "Not looking to invest right now",
-      description: "Just browsing or looking for free tips",
+      value: "just-curious",
+      label: "Just curious and looking around",
       disqualify: true,
     },
   ],
@@ -76,35 +103,50 @@ const occupationStep: OccupancyStep = {
 const contactStep: ContactStep = {
   id: "contact",
   type: "contact",
-  prompt: "Where should we send your next step?",
+  prompt: "Contact info",
 };
 
 function goalStep(variant: QuizVariant): ChoiceStep {
-  const options: ChoiceOption[] =
+  const loseFat: ChoiceOption =
     variant === "whop"
-      ? [
-          { value: "cultural-habits", label: "Build sustainable habits with my favorite foods", description: "Structure without giving up adobo, pho, or pad thai" },
-          { value: "gain-muscle", label: "Gain muscle without changing your lifestyle", description: "Build strength while keeping cultural meals" },
-          { value: "body-confidence", label: "Be confident in your own body", description: "Feel strong and proud in your own skin" },
-          { value: "healthy-traditional", label: "Be the healthiest you've ever been, still eating traditional foods", description: "Optimal health that honors your culture" },
-        ]
-      : [
-          { value: "lose-fat", label: "Lose fat while eating your favorite foods", description: "Get lean without giving up adobo, pho, or pad thai" },
-          { value: "gain-muscle", label: "Gain muscle without changing your lifestyle", description: "Build strength while keeping cultural meals" },
-          { value: "body-confidence", label: "Be confident in your own body", description: "Feel strong and proud in your own skin" },
-          { value: "healthy-traditional", label: "Be the healthiest you've ever been, still eating traditional foods", description: "Optimal health that honors your culture" },
-        ];
+      ? {
+          value: "lose-fat",
+          label: "Get in better shape",
+          description: "Without giving up the food I grew up on",
+        }
+      : {
+          value: "lose-fat",
+          label: "Lose fat",
+          description: "Without giving up the food I grew up on",
+        };
 
   return {
     id: "goal",
     type: "single",
-    prompt: "How can I help you?",
-    options,
+    prompt: "What is your primary goal over the next 6 months?",
+    options: [
+      loseFat,
+      {
+        value: "build-muscle",
+        label: "Build muscle and get strong",
+        description: "Without living in the gym",
+      },
+      {
+        value: "body-confidence",
+        label: "Feel confident in my body again",
+        description: "Look in the mirror and like what I see",
+      },
+      {
+        value: "healthiest",
+        label: "Be the healthiest I've ever been",
+        description: "And still eat with my family",
+      },
+    ],
   };
 }
 
 export function getQuizSteps(variant: QuizVariant = "default"): QuizStep[] {
-  return [culturalFoodsStep, situationStep, goalStep(variant), readinessStep, occupationStep, contactStep];
+  return [culturalFoodsStep, situationStep, goalStep(variant), historyStep, readinessStep, occupationStep, contactStep];
 }
 
 export function findOption(step: ChoiceStep, value: string): ChoiceOption | undefined {

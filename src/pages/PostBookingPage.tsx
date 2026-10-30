@@ -3,7 +3,8 @@ import { Check } from "lucide-react";
 import { WistiaPlayer } from "@wistia/wistia-player-react";
 import Footer from "@/components/Footer";
 import { LazyWistiaCard } from "@/components/LazyWistiaCard";
-import { trackEvent } from "@/lib/sweep";
+import { funnelEvent } from "@/config/funnel";
+import { getSessionId, trackEvent } from "@/lib/sweep";
 import {
   Accordion,
   AccordionContent,
@@ -97,7 +98,12 @@ const PostBookingPage = () => {
   const [watchedMethod, setWatchedMethod] = useState(false);
 
   useEffect(() => {
-    void trackEvent("quiz_page_view", { page_id: "post-booking" });
+    const sessionId = getSessionId();
+    void trackEvent(
+      funnelEvent.postBookingView,
+      { page_id: "post-booking" },
+      `${funnelEvent.postBookingView}_${sessionId}`
+    );
     document.title = "Confirm your call | Knight Nakanishi Fitness";
     let robots = document.querySelector('meta[name="robots"]');
     if (!robots) {

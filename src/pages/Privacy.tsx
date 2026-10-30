@@ -2,7 +2,7 @@ import LegalPage from "@/components/LegalPage";
 
 const Privacy = () => {
   return (
-    <LegalPage title="Privacy Policy" updated="June 13, 2026">
+    <LegalPage title="Privacy Policy" updated="October 26, 2026">
       <p>
         This Privacy Policy describes how Nakanishi Consulting LLC operating as Knight Fit ("we," "us," or "our")
         collects, uses, and protects information when you interact with our website, forms, and communications,
@@ -11,20 +11,27 @@ const Privacy = () => {
 
       <h2>1. Information We Collect</h2>
       <p>
-        We collect information you provide directly to us, including your name, phone number, email address, and any
-        other details you submit through our forms or booking pages.
+        When you apply, we collect and store the answers you submit: whether you are Southeast Asian, your situation,
+        your goal, what you have tried before, how ready you are to start, your age, and what you do for work. We also
+        collect the contact details you provide: name, email, phone number, and Instagram handle.
+      </p>
+      <p>
+        We store that application so we can review fit and follow up. We also collect booking details if you schedule a
+        call, plus technical data such as pages visited and a visitor identifier used to keep form events consistent.
       </p>
 
       <h2>2. How We Use Your Information</h2>
       <p>
-        We use the information collected to schedule and confirm appointments, send reminders and follow-ups, respond
-        to inquiries, and provide updates regarding our programs and services.
+        We use your application answers and contact details to decide whether coaching is a fit and to reach you about
+        that application. Outreach may be by phone call, text message, email, or Instagram message to the handle you
+        gave us. Those messages are about your application, your call, and next steps. We do not sell your information,
+        and we do not send promotional spam because you applied.
       </p>
 
       <h2>3. SMS and Text Message Communications</h2>
       <p>
-        By providing your phone number and opting in through our forms, you may consent to receive text messages from
-        Nakanishi Consulting LLC. We send two categories of SMS communications:
+        By submitting an application with your phone number, you agree we may text you about that application: call
+        confirmations, reminders, and follow-ups. We send two categories of SMS communications:
       </p>
       <p>
         <strong>Non-Marketing Messages:</strong> These include appointment confirmations, booking reminders, call
@@ -32,10 +39,9 @@ const Privacy = () => {
         sent to fulfill the service you requested.
       </p>
       <p>
-        <strong>Marketing Messages:</strong> With your explicit opt-in consent, we may send promotional messages
-        including new program announcements, limited-time offers, and coaching resources. You may opt out of marketing
-        messages at any time by replying STOP. Consent to receive marketing messages is not a condition of purchase or
-        participation in any program.
+        <strong>Marketing Messages:</strong> Promotional texts are sent only with a separate opt-in. Applying does not
+        opt you into marketing. You may opt out of marketing messages at any time by replying STOP. Consent to marketing
+        messages is not a condition of purchase or of applying.
       </p>
       <p>
         Message and data rates may apply. Message frequency varies. Reply HELP for help or STOP to unsubscribe at any
@@ -57,16 +63,18 @@ const Privacy = () => {
 
       <h2>6. Sharing of Information</h2>
       <p>
-        We do not sell, rent, or share your personal information with third parties for their marketing purposes. We may
-        share your information with trusted service providers who assist in operating our website and delivering our
-        services, under strict confidentiality agreements.
+        We do not sell, rent, or share your personal information with third parties for their marketing purposes. We do
+        share application answers and contact details with service providers that store leads and send the messages we
+        ask them to send. Those providers include our CRM, form and automation tools, and website analytics. They may
+        use the information only to perform those services for us.
       </p>
 
       <h2>7. Mobile Information Non-Sharing Policy</h2>
       <p>
-        No mobile information will be shared with third parties or affiliates for marketing or promotional purposes.
-        Information collected via SMS opt-in will not be shared with any third party for any purpose. This policy
-        applies to all SMS programs operated by Nakanishi Consulting LLC.
+        No mobile information will be shared with third parties or affiliates for their marketing or promotional
+        purposes. Text opt-in data is not sold or shared for anyone else's campaigns. Vendors that store your
+        application or send messages we ask them to send may receive the number only to do that work for us. This
+        policy applies to all SMS programs operated by Nakanishi Consulting LLC.
       </p>
 
       <h2>8. Cookies and Tracking</h2>

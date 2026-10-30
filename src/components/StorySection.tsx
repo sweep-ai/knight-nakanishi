@@ -23,12 +23,12 @@ const StorySection = ({ variant = "default" }: StorySectionProps) => {
     <section className="relative py-12 sm:py-16 section-dark">
       <div className="container px-4 sm:px-6">
         <div className="max-w-2xl mx-auto">
-          <h2 className="font-display text-3xl sm:text-4xl md:text-5xl mb-6 text-center">
-            Knight Fit is for you <span className="text-primary">if...</span>
+          <h2 className="font-display text-4xl sm:text-5xl md:text-6xl mb-8 text-center leading-[1.04]">
+            Knight Fit is for you <span className="text-accent">if...</span>
           </h2>
-          <ul className="space-y-3 mb-8">
+          <ul className="space-y-4 mb-8">
             {points.map((point) => (
-              <li key={point} className="flex gap-3 text-sm sm:text-base text-foreground/90">
+              <li key={point} className="flex gap-3 text-base sm:text-lg text-foreground font-medium">
                 <Check className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                 <span>{point}</span>
               </li>

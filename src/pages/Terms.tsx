@@ -3,7 +3,7 @@ import LegalPage from "@/components/LegalPage";
 
 const Terms = () => {
   return (
-    <LegalPage title="Terms of Service" updated="June 13, 2026">
+    <LegalPage title="Terms of Service" updated="October 26, 2026">
       <p>
         These Terms of Service govern your use of the website, forms, and services operated by Nakanishi Consulting LLC
         operating as Knight Fit ("we," "us," or "our"). By accessing our website or submitting your information through
@@ -23,10 +23,18 @@ const Terms = () => {
         submitting your information, you confirm that you meet this requirement.
       </p>
 
-      <h2>3. SMS Communications and Consent</h2>
+      <h2>3. Applications and Contact</h2>
       <p>
-        By providing your phone number and checking the applicable consent boxes on our forms, you agree to receive text
-        messages from Nakanishi Consulting LLC. We operate two separate SMS programs:
+        Submitting an application means you agree we may store your answers and the contact details you provide, and
+        that we may reach you about that application by phone, email, text, and the Instagram handle you submit. Those
+        messages are about your inquiry and any call you book. Applying is not consent to promotional campaigns. We do
+        not send marketing spam because you applied.
+      </p>
+
+      <h2>4. SMS Communications and Consent</h2>
+      <p>
+        By submitting an application with your phone number, you agree to receive text messages from Nakanishi
+        Consulting LLC about that application. We operate two separate SMS programs:
       </p>
       <p>
         <strong>Non-Marketing SMS:</strong> By opting in to non-marketing communications, you consent to receive
@@ -34,48 +42,47 @@ const Terms = () => {
         messages are transactional and are sent to support your participation in our services.
       </p>
       <p>
-        <strong>Marketing SMS:</strong> By opting in to marketing communications, you consent to receive promotional
-        messages including new program announcements, limited-time offers, and coaching resources. Consent to receive
-        marketing messages is not a condition of purchase or participation in any program. You may opt out at any time
-        by replying STOP.
+        <strong>Marketing SMS:</strong> Promotional texts (new programs, offers, coaching resources) are sent only if you
+        separately opt in. Submitting this application is not that opt-in. Consent to marketing messages is not a
+        condition of purchase or of applying. Reply STOP at any time to unsubscribe.
       </p>
       <p>
         Message and data rates may apply. Message frequency varies. Reply HELP for assistance or STOP to unsubscribe at
         any time.
       </p>
 
-      <h2>4. Carrier Liability Disclaimer</h2>
+      <h2>5. Carrier Liability Disclaimer</h2>
       <p>
         Wireless carriers are not liable for delayed or undelivered messages. Nakanishi Consulting LLC is not
         responsible for any delays in SMS delivery caused by your carrier or device.
       </p>
 
-      <h2>5. No Results Guarantee</h2>
+      <h2>6. No Results Guarantee</h2>
       <p>
         Results from our coaching programs vary based on individual effort, consistency, and starting point. Nothing on
         our website or in our communications constitutes a guarantee of specific outcomes. Testimonials and client
         results shared are representative of individual experiences and are not a promise of similar results.
       </p>
 
-      <h2>6. Intellectual Property</h2>
+      <h2>7. Intellectual Property</h2>
       <p>
         All content on our website, including program materials, copy, images, and methodology, is the property of
         Nakanishi Consulting LLC and may not be reproduced, distributed, or used without written permission.
       </p>
 
-      <h2>7. Payment and Refunds</h2>
+      <h2>8. Payment and Refunds</h2>
       <p>
         Payment terms and refund eligibility are outlined in your individual client agreement. No refunds are issued for
         services already rendered unless otherwise specified in writing.
       </p>
 
-      <h2>8. Limitation of Liability</h2>
+      <h2>9. Limitation of Liability</h2>
       <p>
         To the fullest extent permitted by law, Nakanishi Consulting LLC shall not be liable for any indirect,
         incidental, or consequential damages arising from your use of our services or website.
       </p>
 
-      <h2>9. Privacy Policy</h2>
+      <h2>10. Privacy Policy</h2>
       <p>
         Your use of our services is also governed by our Privacy Policy, available at{" "}
         <Link to="/privacy" className="text-primary hover:underline">
@@ -84,14 +91,14 @@ const Terms = () => {
         . By using our services, you agree to the terms of our Privacy Policy.
       </p>
 
-      <h2>10. Changes to These Terms</h2>
+      <h2>11. Changes to These Terms</h2>
       <p>
         We reserve the right to update these Terms of Service at any time. Changes will be posted on this page with an
         updated effective date. Continued use of our services after any changes constitutes your acceptance of the
         revised terms.
       </p>
 
-      <h2>11. Contact Us</h2>
+      <h2>12. Contact Us</h2>
       <p>If you have any questions about these Terms of Service, please contact us:</p>
       <p>
         Nakanishi Consulting LLC operating as Knight Fit

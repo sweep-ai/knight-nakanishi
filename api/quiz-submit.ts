@@ -33,6 +33,7 @@ type QuizSubmitBody = {
   social?: string;
   occupation?: string;
   age?: string;
+  priorAttempts?: string;
   leadStatus?: string;
   dqReason?: string | null;
   formId?: string;
@@ -49,9 +50,36 @@ type QuizSubmitBody = {
   goal_code?: string;
   readiness?: string;
   readiness_code?: string;
+  utm?: {
+    source?: string;
+    medium?: string;
+    campaign?: string;
+    term?: string;
+    content?: string;
+  };
   pageUrl?: string;
   pageTitle?: string;
 };
+
+function definedFields(fields: Record<string, unknown>): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const [key, value] of Object.entries(fields)) {
+    if (typeof value !== "string") continue;
+    const trimmed = value.trim();
+    if (!trimmed) continue;
+    out[key] = trimmed;
+  }
+  return out;
+}
+
+function answerPair(entry: unknown): { prompt?: string; label?: string } {
+  if (!entry || typeof entry !== "object") return {};
+  const row = entry as { prompt?: unknown; label?: unknown };
+  return {
+    prompt: typeof row.prompt === "string" ? row.prompt : undefined,
+    label: typeof row.label === "string" ? row.label : undefined,
+  };
+}
 
 async function forwardSweepEvent(body: QuizSubmitBody) {
   const { apiBase, funnelId } = sweepConfig();
@@ -72,6 +100,7 @@ async function forwardSweepEvent(body: QuizSubmitBody) {
         page_url: body.pageUrl,
         page_title: body.pageTitle,
         source: "quiz",
+        ...(body.utm && Object.values(body.utm).some((value) => value?.trim()) ? { utm: body.utm } : {}),
       },
       event_timestamp: new Date().toISOString(),
     }),
@@ -80,24 +109,56 @@ async function forwardSweepEvent(body: QuizSubmitBody) {
   return { ok: res.ok, status: res.status, data };
 }
 
-async function forwardSweepLead(body: QuizSubmitBody) {
-  const { apiBase, funnelId } = sweepConfig();
-  if (!funnelId) return { skipped: true, reason: "FUNNEL_ID missing" };
+async function forwardSweepWebhook(body: QuizSubmitBody) {
+  const url = env("SWEEP_WEBHOOK_URL");
+  if (!url) return { skipped: true, reason: "SWEEP_WEBHOOK_URL missing" };
 
-  const res = await fetch(`${apiBase}/funnels/leads`, {
+  const { firstName, lastName } = splitName(body.name || "");
+  const qa = body.quizAnswers || {};
+  const answers: Record<string, string> = {};
+  for (const key of ["culturalFoods", "situation", "goal", "readiness"] as const) {
+    const { prompt, label } = answerPair(qa[key]);
+    if (prompt && label) answers[prompt] = label;
+  }
+  const prior =
+    body.priorAttempts || (typeof qa.priorAttempts === "string" ? qa.priorAttempts : "");
+  if (prior.trim()) answers["What have you tried before and what happened?"] = prior.trim();
+  const age = body.age || (typeof qa.age === "string" ? qa.age : "");
+  if (age.trim()) answers.Age = age.trim();
+  const work = body.occupation || (typeof qa.occupation === "string" ? qa.occupation : "");
+  if (work.trim()) answers["What do you do for work?"] = work.trim();
+  if (body.leadStatus) answers["Lead status"] = body.leadStatus;
+  if (body.dqReason) answers["Disqualify reason"] = body.dqReason;
+  if (body.notes) answers.Notes = body.notes;
+
+  const payload = definedFields({
+    name: body.name,
+    first_name: firstName,
+    last_name: lastName,
+    email: body.email,
+    phone: body.phone,
+    instagram: body.social,
+    visitor_id: body.visitorId,
+    session_id: body.sessionId,
+    utm_source: body.utm?.source,
+    utm_medium: body.utm?.medium,
+    utm_campaign: body.utm?.campaign,
+    utm_term: body.utm?.term,
+    utm_content: body.utm?.content,
+    ...answers,
+  });
+
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+    "User-Agent": "KnightFitFunnel/1.0",
+  };
+  if (body.idempotencyKey) headers["Idempotency-Key"] = body.idempotencyKey;
+
+  const res = await fetch(url, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      funnel_id: funnelId,
-      email: body.email,
-      name: body.name,
-      phone: body.phone,
-      instagram: body.social || undefined,
-      source: "quiz",
-      funnel_step_reached: "form_submit",
-      quiz_answers: body.quizAnswers,
-      notes: body.notes,
-    }),
+    headers,
+    body: JSON.stringify(payload),
   });
   const data = await res.json().catch(() => ({}));
   return { ok: res.ok, status: res.status, data };
@@ -114,6 +175,7 @@ async function forwardZapier(body: QuizSubmitBody) {
     social: body.social || "",
     occupation: body.occupation || "",
     age: body.age || "",
+    priorAttempts: body.priorAttempts || "",
     culturalFoods: body.culturalFoods || "",
     culturalFoods_code: body.culturalFoods_code || "",
     situation: body.situation || "",
@@ -222,9 +284,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       ok: false,
       error: e instanceof Error ? e.message : "sweep event failed",
     })),
-    sweepLead: await forwardSweepLead(body).catch((e) => ({
+    sweepWebhook: await forwardSweepWebhook(body).catch((e) => ({
       ok: false,
-      error: e instanceof Error ? e.message : "sweep lead failed",
+      error: e instanceof Error ? e.message : "sweep webhook failed",
     })),
     zapier: await forwardZapier(body).catch((e) => ({
       ok: false,

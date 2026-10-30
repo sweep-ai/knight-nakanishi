@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { GHL_BOOKING_URL } from "@/config/funnel";
+import { funnelEvent, GHL_BOOKING_URL } from "@/config/funnel";
+import { getSessionId, trackEvent } from "@/lib/sweep";
 
 const BOOKING_SRC = GHL_BOOKING_URL;
 const EMBED_SCRIPT = "https://link.msgsndr.com/js/form_embed.js";
@@ -32,6 +33,8 @@ const GhlBookingEmbed = () => {
     const goPostBooking = () => {
       if (routed.current) return;
       routed.current = true;
+      const sessionId = getSessionId();
+      void trackEvent(funnelEvent.callBooked, { page_id: "booking" }, `${funnelEvent.callBooked}_${sessionId}`);
       navigate("/post-booking", { replace: true });
     };
 

@@ -1,13 +1,14 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft, ArrowRight, CheckCircle, Loader2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { QUIZ_SHEET_WEB_APP_URL } from "@/config/quizSheetConfig";
-import { APPLICANT_STORAGE_KEY, FORM_ID } from "@/config/funnel";
-import { getSessionId, trackEvent } from "@/lib/sweep";
+import { APPLICANT_STORAGE_KEY, FORM_ID, funnelEvent } from "@/config/funnel";
+import { getSessionId, getUtm, trackEvent } from "@/lib/sweep";
 import {
   findOption,
   getQuizSteps,
@@ -22,6 +23,7 @@ type Answers = {
   situation: string;
   goal: string;
   readiness: string;
+  priorAttempts: string;
   occupation: string;
   age: string;
   name: string;
@@ -35,6 +37,7 @@ const emptyAnswers: Answers = {
   situation: "",
   goal: "",
   readiness: "",
+  priorAttempts: "",
   occupation: "",
   age: "",
   name: "",
@@ -69,8 +72,21 @@ const ApplicationForm = ({ variant = "default" }: ApplicationFormProps) => {
   const markStarted = () => {
     if (startedRef.current) return;
     startedRef.current = true;
-    void trackEvent("quiz_start", { form_id: FORM_ID });
+    const sessionId = getSessionId();
+    void trackEvent(funnelEvent.quizStart, { form_id: FORM_ID }, `${funnelEvent.quizStart}_${sessionId}_${FORM_ID}`);
   };
+
+  useEffect(() => {
+    const current = getQuizSteps(variant)[stepIndex];
+    if (!current) return;
+    const sessionId = getSessionId();
+    const n = stepIndex + 1;
+    void trackEvent(
+      funnelEvent.quizStep(n),
+      { form_id: FORM_ID, step: n, step_id: current.id },
+      `${funnelEvent.quizStep(n)}_${sessionId}_${FORM_ID}`
+    );
+  }, [stepIndex, variant]);
 
   const goNext = () => {
     setStepIndex((i) => Math.min(i + 1, total - 1));
@@ -102,11 +118,32 @@ const ApplicationForm = ({ variant = "default" }: ApplicationFormProps) => {
     return true;
   };
 
-  const handleOccupationContinue = () => {
-    if (!answers.occupation.trim()) {
+  const handleHistoryContinue = () => {
+    if (!answers.priorAttempts.trim()) {
       toast({
         title: "One more thing",
-        description: "Tell us your occupation so we can tailor the call.",
+        description: "Tell us what you tried and what happened.",
+        variant: "destructive",
+      });
+      return;
+    }
+    goNext();
+  };
+
+  const handleOccupationContinue = () => {
+    const age = Number(answers.age.trim());
+    if (!answers.age.trim() || !answers.occupation.trim() || !Number.isFinite(age)) {
+      toast({
+        title: "A little more detail",
+        description: "Add your age and what you do for work.",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (age < 18) {
+      toast({
+        title: "18 or older",
+        description: "Coaching applications are for adults 18 and up.",
         variant: "destructive",
       });
       return;
@@ -144,6 +181,7 @@ const ApplicationForm = ({ variant = "default" }: ApplicationFormProps) => {
       situation,
       goal,
       readiness,
+      priorAttempts: answers.priorAttempts.trim(),
       occupation: answers.occupation.trim(),
       age: answers.age.trim() || null,
       social: answers.social.trim() || null,
@@ -175,6 +213,7 @@ const ApplicationForm = ({ variant = "default" }: ApplicationFormProps) => {
           social: answers.social.trim(),
           occupation: answers.occupation.trim(),
           age: answers.age.trim(),
+          priorAttempts: answers.priorAttempts.trim(),
           leadStatus,
           dqReason,
           formId: FORM_ID,
@@ -182,7 +221,7 @@ const ApplicationForm = ({ variant = "default" }: ApplicationFormProps) => {
           sessionId,
           idempotencyKey,
           quizAnswers,
-          notes: `${leadStatus}. Goal: ${goal.label}. Readiness: ${readiness.label}. Occupation: ${answers.occupation.trim()}.`,
+          notes: `${leadStatus}. Goal: ${goal.label}. Tried: ${answers.priorAttempts.trim()}. Readiness: ${readiness.label}. Work: ${answers.occupation.trim()}.`,
           culturalFoods: culturalFoods.label,
           culturalFoods_code: culturalFoods.code,
           situation: situation.label,
@@ -191,6 +230,7 @@ const ApplicationForm = ({ variant = "default" }: ApplicationFormProps) => {
           goal_code: goal.code,
           readiness: readiness.label,
           readiness_code: readiness.code,
+          utm: getUtm(),
           pageUrl: typeof window !== "undefined" ? window.location.href : undefined,
           pageTitle: typeof document !== "undefined" ? document.title : undefined,
         }),
@@ -215,6 +255,7 @@ const ApplicationForm = ({ variant = "default" }: ApplicationFormProps) => {
             social: answers.social.trim(),
             occupation: answers.occupation.trim(),
             age: answers.age.trim(),
+            priorAttempts: answers.priorAttempts.trim(),
             goal: goal.code,
             situation: situation.code,
             readiness: readiness.code,
@@ -321,23 +362,27 @@ const ApplicationForm = ({ variant = "default" }: ApplicationFormProps) => {
         </div>
       )}
 
+      {step.type === "history" && (
+        <div className="space-y-4 sm:space-y-6">
+          <Textarea
+            id="priorAttempts"
+            placeholder="Diets, gyms, apps, what stuck and what didn't..."
+            value={answers.priorAttempts}
+            onChange={(e) => setAnswers({ ...answers, priorAttempts: e.target.value })}
+            className="min-h-36 bg-muted border-border focus:border-primary text-sm sm:text-base"
+          />
+          <Button type="button" variant="hero" size="xl" className="w-full font-display" onClick={handleHistoryContinue}>
+            Continue
+            <ArrowRight className="w-4 h-4 ml-2" />
+          </Button>
+        </div>
+      )}
+
       {step.type === "occupation" && (
         <div className="space-y-4 sm:space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="occupation" className="text-xs sm:text-sm font-medium uppercase tracking-wider">
-              Occupation
-            </Label>
-            <Input
-              id="occupation"
-              placeholder="Student, nurse, business owner..."
-              value={answers.occupation}
-              onChange={(e) => setAnswers({ ...answers, occupation: e.target.value })}
-              className="h-11 sm:h-12 bg-muted border-border focus:border-primary text-sm sm:text-base"
-            />
-          </div>
-          <div className="space-y-2">
             <Label htmlFor="age" className="text-xs sm:text-sm font-medium uppercase tracking-wider">
-              Age <span className="text-muted-foreground normal-case tracking-normal">(optional)</span>
+              Age
             </Label>
             <Input
               id="age"
@@ -345,6 +390,18 @@ const ApplicationForm = ({ variant = "default" }: ApplicationFormProps) => {
               placeholder="e.g. 28"
               value={answers.age}
               onChange={(e) => setAnswers({ ...answers, age: e.target.value })}
+              className="h-11 sm:h-12 bg-muted border-border focus:border-primary text-sm sm:text-base"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="occupation" className="text-xs sm:text-sm font-medium uppercase tracking-wider">
+              What do you do for work?
+            </Label>
+            <Input
+              id="occupation"
+              placeholder="Student, nurse, business owner..."
+              value={answers.occupation}
+              onChange={(e) => setAnswers({ ...answers, occupation: e.target.value })}
               className="h-11 sm:h-12 bg-muted border-border focus:border-primary text-sm sm:text-base"
             />
           </div>
@@ -359,7 +416,7 @@ const ApplicationForm = ({ variant = "default" }: ApplicationFormProps) => {
         <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
           <div className="space-y-2">
             <Label htmlFor="name" className="text-xs sm:text-sm font-medium uppercase tracking-wider">
-              Your name
+              Name
             </Label>
             <Input
               id="name"
@@ -386,7 +443,7 @@ const ApplicationForm = ({ variant = "default" }: ApplicationFormProps) => {
           </div>
           <div className="space-y-2">
             <Label htmlFor="phone" className="text-xs sm:text-sm font-medium uppercase tracking-wider">
-              Phone
+              Phone number
             </Label>
             <Input
               id="phone"
@@ -400,7 +457,7 @@ const ApplicationForm = ({ variant = "default" }: ApplicationFormProps) => {
           </div>
           <div className="space-y-2">
             <Label htmlFor="social" className="text-xs sm:text-sm font-medium uppercase tracking-wider">
-              Instagram or social <span className="text-muted-foreground normal-case tracking-normal">(optional)</span>
+              Instagram
             </Label>
             <Input
               id="social"
@@ -410,6 +467,17 @@ const ApplicationForm = ({ variant = "default" }: ApplicationFormProps) => {
               className="h-11 sm:h-12 bg-muted border-border focus:border-primary text-sm sm:text-base"
             />
           </div>
+          <p className="text-xs sm:text-sm text-muted-foreground text-center leading-relaxed">
+            By applying you agree to our{" "}
+            <Link to="/tos" className="text-foreground underline underline-offset-2">
+              Terms
+            </Link>{" "}
+            and{" "}
+            <Link to="/privacy" className="text-foreground underline underline-offset-2">
+              Privacy Policy
+            </Link>
+            . No spam, ever.
+          </p>
           <Button type="submit" variant="hero" size="xl" className="w-full font-display text-base sm:text-lg" disabled={isSubmitting}>
             {isSubmitting ? (
               <>

@@ -7,11 +7,13 @@ import TestimonialVideosSection from "@/components/TestimonialVideosSection";
 import FinalCTASection from "@/components/FinalCTASection";
 import Footer from "@/components/Footer";
 import StickyApplyBar from "@/components/StickyApplyBar";
-import { trackEvent } from "@/lib/sweep";
+import { funnelEvent } from "@/config/funnel";
+import { getSessionId, trackEvent } from "@/lib/sweep";
 
 const Index = () => {
   useEffect(() => {
-    void trackEvent("quiz_page_view", { page_id: "intro" });
+    const sessionId = getSessionId();
+    void trackEvent(funnelEvent.quizPageView, { page_id: "intro" }, `${funnelEvent.quizPageView}_intro_${sessionId}`);
   }, []);
 
   return (

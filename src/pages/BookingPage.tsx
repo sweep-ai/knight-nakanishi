@@ -2,11 +2,17 @@ import { useEffect } from "react";
 import GhlBookingEmbed from "@/components/GhlBookingEmbed";
 import Footer from "@/components/Footer";
 import ScrollingBanner from "@/components/ScrollingBanner";
-import { trackEvent } from "@/lib/sweep";
+import { funnelEvent } from "@/config/funnel";
+import { getSessionId, trackEvent } from "@/lib/sweep";
 
 const BookingPage = () => {
   useEffect(() => {
-    void trackEvent("quiz_page_view", { page_id: "booking" });
+    const sessionId = getSessionId();
+    void trackEvent(
+      funnelEvent.bookingPageView,
+      { page_id: "booking" },
+      `${funnelEvent.bookingPageView}_${sessionId}`
+    );
   }, []);
 
   return (

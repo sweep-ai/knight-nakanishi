@@ -5,11 +5,13 @@ import AuthoritySection from "@/components/AuthoritySection";
 import FinalCTASection from "@/components/FinalCTASection";
 import Footer from "@/components/Footer";
 import StickyApplyBar from "@/components/StickyApplyBar";
-import { trackEvent } from "@/lib/sweep";
+import { funnelEvent } from "@/config/funnel";
+import { getSessionId, trackEvent } from "@/lib/sweep";
 
 const Whop = () => {
   useEffect(() => {
-    void trackEvent("quiz_page_view", { page_id: "whop" });
+    const sessionId = getSessionId();
+    void trackEvent(funnelEvent.quizPageView, { page_id: "whop" }, `${funnelEvent.quizPageView}_whop_${sessionId}`);
   }, []);
 
   return (

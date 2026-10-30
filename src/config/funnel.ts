@@ -10,3 +10,14 @@ export const GHL_BOOKING_URL =
 export const FORM_ID = "root-quiz";
 
 export const APPLICANT_STORAGE_KEY = "knight_applicant";
+
+/** Names must match the Sweep OS Steps tab exactly. */
+export const funnelEvent = {
+  quizPageView: "quiz_page_view",
+  quizStart: "quiz_start",
+  formSubmit: "form_submit",
+  bookingPageView: "booking_page_view",
+  callBooked: "call_booked",
+  postBookingView: "post_booking_view",
+  quizStep: (n: number) => `quiz_step_${n}`,
+} as const;

@@ -1,5 +1,8 @@
+import { useEffect, useRef, useState } from "react";
+import { Volume2 } from "lucide-react";
 import { WistiaPlayer } from "@wistia/wistia-player-react";
 import ApplicationForm from "@/components/ApplicationForm";
+import { useVideoWatch } from "@/hooks/useVideoWatch";
 
 interface QuizHeroSectionProps {
   variant?: "default" | "whop";
@@ -7,6 +10,31 @@ interface QuizHeroSectionProps {
 
 const QuizHeroSection = ({ variant = "default" }: QuizHeroSectionProps) => {
   const isWhop = variant === "whop";
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [coverOn, setCoverOn] = useState(true);
+  useVideoWatch(videoRef, !isWhop);
+
+  useEffect(() => {
+    if (isWhop) return;
+    const video = videoRef.current;
+    if (!video) return;
+    const start = () => {
+      video.muted = true;
+      void video.play().catch(() => {});
+    };
+    start();
+    video.addEventListener("canplay", start);
+    return () => video.removeEventListener("canplay", start);
+  }, [isWhop]);
+
+  const unmute = () => {
+    const video = videoRef.current;
+    if (!video) return;
+    video.muted = false;
+    video.volume = 1;
+    void video.play();
+    setCoverOn(false);
+  };
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden section-dark">
@@ -24,7 +52,7 @@ const QuizHeroSection = ({ variant = "default" }: QuizHeroSectionProps) => {
       <div className="container relative z-10 px-4 sm:px-6 pt-2 sm:pt-8 pb-4 sm:pb-8 md:py-10">
         <div className="max-w-3xl mx-auto">
           {/* Logo */}
-          <div className="flex justify-center mb-2 sm:mb-3">
+          <div className="flex justify-center -mb-8 sm:-mb-11 md:-mb-14 lg:-mb-16 xl:-mb-[4.5rem]">
             <button
               type="button"
               onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
@@ -49,45 +77,74 @@ const QuizHeroSection = ({ variant = "default" }: QuizHeroSectionProps) => {
           </div>
 
           {/* Main headline — Problem + Solution + Outcome; Proof + Novelty + Objection Removal */}
-          <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl leading-tight mb-2 sm:mb-3 animate-slide-up px-2 text-center">
+          <h1 className="font-display text-[2.6rem] sm:text-6xl md:text-7xl lg:text-[5.25rem] leading-[1.02] mb-4 sm:mb-5 animate-slide-up px-1 text-center max-w-[18ch] mx-auto">
             {isWhop ? (
               <>
                 A Method Built Around{" "}
-                <span className="text-gradient">Pho, Adobo, and Pad Thai</span>{" "}
+                <span className="text-accent">Pho, Adobo, and Pad Thai</span>{" "}
                 Instead of Cutting Them Out
               </>
             ) : (
               <>
-                The <span className="text-gradient">SYSTEM </span> That Drops{" "}
-                <span className="text-gradient">15-50 Lbs</span> Of Fat Without Cutting Out{" "}
-                <span className="text-gradient">Pho, Adobo, or Pad Thai</span> 
+                Drop{" "}
+                <span className="text-accent">15-50 Lbs</span> Of Fat Without Cutting Out{" "}
+                <span className="text-accent">Pho, Adobo, or Pad Thai</span> 
               </>
             )}
           </h1>
 
           {/* Subheadline — specificity + social proof */}
-          <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl mx-auto mb-5 sm:mb-6 animate-slide-up px-4 text-center" style={{ animationDelay: "0.2s" }}>
+          <p className="text-base sm:text-lg md:text-xl text-foreground/80 max-w-2xl mx-auto mb-6 sm:mb-8 animate-slide-up px-4 text-center leading-relaxed" style={{ animationDelay: "0.2s" }}>
             {isWhop ? (
               <>
-                It keeps Larb, Pad Krapow, and the foods you already love on the menu.
-                Clients say they&apos;re getting better results than every diet they tried before.
+                Every diet told you to stop eating rice. I build your plan around pho, larb, tinola and whatever's on the table at Sunday dinner, so you're not stuck choosing between your goals and your family.
               </>
             ) : (
               <>
-                It keeps Larb, Pad Krapow, and the foods you already love on the menu.
-                And they&apos;re getting better results than every diet they tried before.
+                Every diet told you to stop eating rice. I build your plan around pho, larb, tinola and whatever's on the table at Sunday dinner, so you're not stuck choosing between your goals and your family.
               </>
             )}
           </p>
 
           {/* VSL */}
-          <div className="video-frame w-full max-w-2xl mx-auto mb-6 sm:mb-8 animate-slide-up overflow-hidden rounded-sm border border-border shadow-2xl" style={{ animationDelay: "0.3s" }}>
-            <WistiaPlayer mediaId="hbt4xagwap" aspect={1.7777777777777777} />
+          <div className="video-frame relative w-full max-w-2xl mx-auto mb-6 sm:mb-8 animate-slide-up overflow-hidden rounded-sm border border-border shadow-2xl aspect-video bg-black" style={{ animationDelay: "0.3s" }}>
+            {isWhop ? (
+              <WistiaPlayer mediaId="hbt4xagwap" aspect={1.7777777777777777} />
+            ) : (
+              <>
+                <video
+                  ref={videoRef}
+                  src="/vsl.mp4"
+                  className="absolute inset-0 h-full w-full object-cover"
+                  autoPlay
+                  muted
+                  playsInline
+                  preload="auto"
+                />
+                {coverOn && (
+                  <button
+                    type="button"
+                    onClick={unmute}
+                    className="absolute inset-0 z-10 flex items-center justify-center bg-primary/55 px-3 sm:px-6"
+                    aria-label="Your video is playing. Click to unmute."
+                  >
+                    <span className="flex w-full max-w-xl flex-col items-center justify-center gap-3 rounded-[1.35rem] border-[3px] border-white px-5 py-7 sm:gap-4 sm:px-8 sm:py-9 text-white">
+                      <Volume2 className="h-12 w-12 sm:h-14 sm:w-14" strokeWidth={2.25} aria-hidden />
+                      <span className="text-center text-xl sm:text-2xl md:text-3xl font-bold uppercase leading-[1.15] tracking-wide">
+                        Your video is playing
+                        <br />
+                        Click to unmute
+                      </span>
+                    </span>
+                  </button>
+                )}
+              </>
+            )}
           </div>
 
           <div className="animate-slide-up max-w-2xl mx-auto" style={{ animationDelay: "0.4s" }}>
-            <h2 className="font-display text-2xl sm:text-3xl md:text-4xl text-center mb-6">
-              Apply for a <span className="text-primary">Free Consultation Call</span>
+            <h2 className="font-display text-3xl sm:text-4xl md:text-5xl text-center mb-6 leading-[1.04]">
+              Check Your Eligibility<span className="text-accent"> In 2 Minutes</span>
             </h2>
             <ApplicationForm variant={variant} />
           </div>

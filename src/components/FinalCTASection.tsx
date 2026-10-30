@@ -12,7 +12,7 @@ const FinalCTASection = ({ variant = "default" }: FinalCTASectionProps) => {
   };
 
   return (
-    <section className="relative py-16 sm:py-20 md:py-24 lg:py-32 overflow-hidden bg-primary">
+    <section id="final-cta" className="relative py-16 sm:py-20 md:py-24 lg:py-32 overflow-hidden bg-primary">
       {/* Background pattern */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-accent rounded-full blur-3xl" />
@@ -35,12 +35,12 @@ const FinalCTASection = ({ variant = "default" }: FinalCTASectionProps) => {
           </div>
 
           {/* Headline */}
-          <h2 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl text-accent mb-4 sm:mb-6 px-2">
+          <h2 className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl text-accent mb-4 sm:mb-6 px-2 leading-[0.98]">
             Stop Waiting. Start Winning.
           </h2>
 
           {/* Subheadline */}
-          <p className="text-base sm:text-lg md:text-xl text-primary-foreground/80 mb-8 sm:mb-10 max-w-xl mx-auto px-4">
+          <p className="text-lg sm:text-xl md:text-2xl text-primary-foreground font-medium mb-8 sm:mb-10 max-w-xl mx-auto px-4">
             {isWhop
               ? "Get a personalized coaching plan—built around YOUR food, YOUR schedule, and YOUR goals."
               : "Get your personalized transformation plan—designed around YOUR food, YOUR schedule, YOUR goals."}
