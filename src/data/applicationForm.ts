@@ -47,7 +47,7 @@ const culturalFoodsStep: ChoiceStep = {
 const situationStep: ChoiceStep = {
   id: "situation",
   type: "single",
-  prompt: "Which best describes your situation?",
+  prompt: "What has been the biggest challenge keeping you from achieving your goal?",
   options: [
     {
       value: "family-events",
@@ -146,7 +146,7 @@ function goalStep(variant: QuizVariant): ChoiceStep {
 }
 
 export function getQuizSteps(variant: QuizVariant = "default"): QuizStep[] {
-  return [culturalFoodsStep, situationStep, goalStep(variant), historyStep, readinessStep, occupationStep, contactStep];
+  return [culturalFoodsStep, goalStep(variant), situationStep, historyStep, readinessStep, occupationStep, contactStep];
 }
 
 export function findOption(step: ChoiceStep, value: string): ChoiceOption | undefined {
