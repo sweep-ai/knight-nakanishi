@@ -77,7 +77,7 @@ const QuizHeroSection = ({ variant = "default" }: QuizHeroSectionProps) => {
           </div>
 
           {/* Main headline — Problem + Solution + Outcome; Proof + Novelty + Objection Removal */}
-          <h1 className="font-display text-[2.6rem] sm:text-6xl md:text-7xl lg:text-[5.25rem] leading-[1.02] mb-4 sm:mb-5 animate-slide-up px-1 text-center max-w-[18ch] mx-auto">
+          <h1 className="font-display text-[1.9rem] sm:text-[3.25rem] md:text-[4.25rem] lg:text-[4.75rem] leading-[1.05] mb-4 sm:mb-5 animate-slide-up px-1 text-center max-w-[24ch] mx-auto">
             {isWhop ? (
               <>
                 A Method Built Around{" "}
@@ -87,7 +87,7 @@ const QuizHeroSection = ({ variant = "default" }: QuizHeroSectionProps) => {
             ) : (
               <>
                 Drop{" "}
-                <span className="text-accent">15-50 Lbs</span> Of Fat Without Cutting Out{" "}
+                <span className="text-accent">25+ Lbs</span> Of Fat Without Cutting Out{" "}
                 <span className="text-accent">Pho, Adobo, or Pad Thai</span> 
               </>
             )}
@@ -101,7 +101,7 @@ const QuizHeroSection = ({ variant = "default" }: QuizHeroSectionProps) => {
               </>
             ) : (
               <>
-                Every diet told you to stop eating rice. I build your plan around pho, larb, tinola and whatever's on the table at Sunday dinner, so you're not stuck choosing between your goals and your family.
+                Every diet told you to stop eating rice. What if instead we build your plan around pho, larb, tinola so you never have to choose between your goals and your culture.
               </>
             )}
           </p>
@@ -144,7 +144,7 @@ const QuizHeroSection = ({ variant = "default" }: QuizHeroSectionProps) => {
 
           <div className="animate-slide-up max-w-2xl mx-auto" style={{ animationDelay: "0.4s" }}>
             <h2 className="font-display text-3xl sm:text-4xl md:text-5xl text-center mb-6 leading-[1.04]">
-              Check Your Eligibility<span className="text-accent"> In 2 Minutes</span>
+             APPLY HERE<span className="text-accent"> In 2 Minutes</span>
             </h2>
             <ApplicationForm variant={variant} />
           </div>

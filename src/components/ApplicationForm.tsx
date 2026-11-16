@@ -8,6 +8,7 @@ import { ArrowLeft, ArrowRight, CheckCircle, Loader2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { QUIZ_SHEET_WEB_APP_URL } from "@/config/quizSheetConfig";
 import { APPLICANT_STORAGE_KEY, FORM_ID, funnelEvent } from "@/config/funnel";
+import { trackMeta } from "@/lib/metaPixel";
 import { getSessionId, getUtm, trackEvent } from "@/lib/sweep";
 import {
   findOption,
@@ -273,6 +274,12 @@ const ApplicationForm = ({ variant = "default" }: ApplicationFormProps) => {
           leadStatus,
         })
       );
+
+      trackMeta("Lead", {
+        email: answers.email.trim(),
+        phone: answers.phone.trim(),
+        name: answers.name.trim(),
+      });
 
       if (isDq) {
         setDisqualified(true);

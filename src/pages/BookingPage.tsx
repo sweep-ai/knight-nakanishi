@@ -1,12 +1,14 @@
 import { useEffect } from "react";
-import GhlBookingEmbed from "@/components/GhlBookingEmbed";
+import CalBookingEmbed from "@/components/CalBookingEmbed";
 import Footer from "@/components/Footer";
 import ScrollingBanner from "@/components/ScrollingBanner";
 import { funnelEvent } from "@/config/funnel";
+import { replayMeta } from "@/lib/metaPixel";
 import { getSessionId, trackEvent } from "@/lib/sweep";
 
 const BookingPage = () => {
   useEffect(() => {
+    replayMeta("Lead");
     const sessionId = getSessionId();
     void trackEvent(
       funnelEvent.bookingPageView,
@@ -21,14 +23,14 @@ const BookingPage = () => {
         <div className="max-w-3xl mx-auto text-center mb-8">
           <p className="text-xs font-bold uppercase tracking-wider text-primary mb-3">You qualified</p>
           <h1 className="font-display text-3xl sm:text-4xl md:text-5xl mb-3">
-            Book your free strategy call
+            Book Your Gameplan call
           </h1>
           <p className="text-sm sm:text-base text-muted-foreground">
-            Pick a time. We&apos;ll build a plan around the foods you already eat.
+            On this complimentary call we&apos;ll build you a custom plan around the your real circumstances and the foods you already eat.
           </p>
         </div>
         <div className="max-w-3xl mx-auto w-full">
-          <GhlBookingEmbed />
+          <CalBookingEmbed />
         </div>
       </div>
       <ScrollingBanner />

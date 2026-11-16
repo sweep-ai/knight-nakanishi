@@ -4,6 +4,7 @@ import { WistiaPlayer } from "@wistia/wistia-player-react";
 import Footer from "@/components/Footer";
 import { LazyWistiaCard } from "@/components/LazyWistiaCard";
 import { funnelEvent } from "@/config/funnel";
+import { replayMeta } from "@/lib/metaPixel";
 import { getSessionId, trackEvent } from "@/lib/sweep";
 import {
   Accordion,
@@ -78,7 +79,7 @@ const resultVideos = [
   },
 ];
 
-const extraYtIds = ["AcQIp0mGLr4", "AcQIp0mGLr4", "AcQIp0mGLr4"];
+const extraYtIds = ["AcQIp0mGLr4"];
 
 const lockInSteps = [
   "Add this call to your calendar now so it does not get buried or forgotten",
@@ -98,6 +99,7 @@ const PostBookingPage = () => {
   const [watchedMethod, setWatchedMethod] = useState(false);
 
   useEffect(() => {
+    replayMeta("Schedule");
     const sessionId = getSessionId();
     void trackEvent(
       funnelEvent.postBookingView,

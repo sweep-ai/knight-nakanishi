@@ -4,8 +4,7 @@ export const API_BASE_URL =
 export const FUNNEL_ID =
   import.meta.env.VITE_FUNNEL_ID || "f648cbee-0d37-4464-a0a5-3c8b349644d4";
 
-export const GHL_BOOKING_URL =
-  "https://api.leadconnectorhq.com/widget/booking/oHvLoFT0GF89AbUm91OG";
+export const CAL_LINK = "team/knight-fit/coaching-gameplan-call";
 
 export const FORM_ID = "root-quiz";
 
