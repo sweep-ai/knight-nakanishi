@@ -26,13 +26,19 @@ export type HistoryStep = {
   prompt: string;
 };
 
+export type SocialStep = {
+  id: "social";
+  type: "social";
+  prompt: string;
+};
+
 export type ContactStep = {
   id: "contact";
   type: "contact";
   prompt: string;
 };
 
-export type QuizStep = ChoiceStep | OccupancyStep | HistoryStep | ContactStep;
+export type QuizStep = ChoiceStep | OccupancyStep | HistoryStep | SocialStep | ContactStep;
 
 const culturalFoodsStep: ChoiceStep = {
   id: "culturalFoods",
@@ -100,6 +106,12 @@ const occupationStep: OccupancyStep = {
   prompt: "A little about you",
 };
 
+const socialStep: SocialStep = {
+  id: "social",
+  type: "social",
+  prompt: "What's your Instagram?",
+};
+
 const contactStep: ContactStep = {
   id: "contact",
   type: "contact",
@@ -146,7 +158,7 @@ function goalStep(variant: QuizVariant): ChoiceStep {
 }
 
 export function getQuizSteps(variant: QuizVariant = "default"): QuizStep[] {
-  return [culturalFoodsStep, goalStep(variant), situationStep, historyStep, readinessStep, occupationStep, contactStep];
+  return [culturalFoodsStep, goalStep(variant), situationStep, historyStep, readinessStep, occupationStep, socialStep, contactStep];
 }
 
 export function findOption(step: ChoiceStep, value: string): ChoiceOption | undefined {

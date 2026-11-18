@@ -59,6 +59,7 @@ const ApplicationForm = ({ variant = "default" }: ApplicationFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [disqualified, setDisqualified] = useState(false);
   const startedRef = useRef(false);
+  const lastPartialRef = useRef("");
   const advanceTimer = useRef<number | null>(null);
 
   const step = steps[stepIndex];
@@ -152,25 +153,83 @@ const ApplicationForm = ({ variant = "default" }: ApplicationFormProps) => {
     goNext();
   };
 
+  const labeled = (id: ChoiceStep["id"]) => {
+    const s = steps.find((st): st is ChoiceStep => st.id === id);
+    const opt = s ? findOption(s, answers[id]) : undefined;
+    return {
+      prompt: s?.prompt ?? id,
+      code: answers[id],
+      label: opt?.label ?? answers[id],
+    };
+  };
+
+  const readinessDq = () => {
+    const readinessStep = steps.find((s): s is ChoiceStep => s.id === "readiness");
+    const readinessOption = readinessStep ? findOption(readinessStep, answers.readiness) : undefined;
+    const isDq = Boolean(readinessOption?.disqualify);
+    return { isDq, dqReason: isDq ? readinessOption?.label ?? "Not looking to invest" : null };
+  };
+
+  // Partial lead: Instagram + answers so far, sent before contact info so drop-offs are still captured.
+  const sendPartial = (social: string) => {
+    if (lastPartialRef.current === social) return;
+    lastPartialRef.current = social;
+    const sessionId = getSessionId();
+    const { dqReason } = readinessDq();
+    const culturalFoods = labeled("culturalFoods");
+    const situation = labeled("situation");
+    const goal = labeled("goal");
+    const readiness = labeled("readiness");
+    const visitorId =
+      typeof localStorage !== "undefined" ? localStorage.getItem("sweep_visitor_id") || undefined : undefined;
+
+    void fetch("/api/quiz-submit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      keepalive: true,
+      body: JSON.stringify({
+        partial: true,
+        social,
+        occupation: answers.occupation.trim(),
+        age: answers.age.trim(),
+        priorAttempts: answers.priorAttempts.trim(),
+        leadStatus: "partial",
+        dqReason,
+        formId: FORM_ID,
+        visitorId,
+        sessionId,
+        idempotencyKey: `partial_${sessionId}_${FORM_ID}_${social.toLowerCase()}`,
+        quizAnswers: { culturalFoods, situation, goal, readiness },
+        notes: `partial. Goal: ${goal.label}. Readiness: ${readiness.label}. Instagram: ${social}.`,
+        utm: getUtm(),
+        pageUrl: typeof window !== "undefined" ? window.location.href : undefined,
+        pageTitle: typeof document !== "undefined" ? document.title : undefined,
+      }),
+    }).catch((error) => console.error("quiz partial:", error));
+  };
+
+  const handleSocialContinue = () => {
+    const handle = answers.social.trim().replace(/^@+/, "").replace(/^https?:\/\/(www\.)?instagram\.com\//i, "").replace(/\/.*$/, "");
+    if (!handle || /\s/.test(handle)) {
+      toast({
+        title: "Add your Instagram",
+        description: "Enter your handle, like @yourname.",
+        variant: "destructive",
+      });
+      return;
+    }
+    const social = `@${handle}`;
+    setAnswers((prev) => ({ ...prev, social }));
+    sendPartial(social);
+    goNext();
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateContact()) return;
 
-    const readinessStep = steps.find((s): s is ChoiceStep => s.id === "readiness");
-    const readinessOption = readinessStep ? findOption(readinessStep, answers.readiness) : undefined;
-    const isDq = Boolean(readinessOption?.disqualify);
+    const { isDq, dqReason } = readinessDq();
     const leadStatus = isDq ? "disqualified" : "qualified";
-    const dqReason = isDq ? readinessOption?.label ?? "Not looking to invest" : null;
-
-    const labeled = (id: ChoiceStep["id"]) => {
-      const s = steps.find((st): st is ChoiceStep => st.id === id);
-      const opt = s ? findOption(s, answers[id]) : undefined;
-      return {
-        prompt: s?.prompt ?? id,
-        code: answers[id],
-        label: opt?.label ?? answers[id],
-      };
-    };
 
     const culturalFoods = labeled("culturalFoods");
     const situation = labeled("situation");
@@ -419,6 +478,35 @@ const ApplicationForm = ({ variant = "default" }: ApplicationFormProps) => {
         </div>
       )}
 
+      {step.type === "social" && (
+        <div className="space-y-4 sm:space-y-6">
+          <div className="space-y-2">
+            <Label htmlFor="social" className="text-xs sm:text-sm font-medium uppercase tracking-wider">
+              Instagram
+            </Label>
+            <Input
+              id="social"
+              placeholder="@handle"
+              autoCapitalize="none"
+              autoCorrect="off"
+              value={answers.social}
+              onChange={(e) => setAnswers({ ...answers, social: e.target.value })}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  handleSocialContinue();
+                }
+              }}
+              className="h-11 sm:h-12 bg-muted border-border focus:border-primary text-sm sm:text-base"
+            />
+          </div>
+          <Button type="button" variant="hero" size="xl" className="w-full font-display" onClick={handleSocialContinue}>
+            Continue
+            <ArrowRight className="w-4 h-4 ml-2" />
+          </Button>
+        </div>
+      )}
+
       {step.type === "contact" && (
         <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
           <div className="space-y-2">
@@ -460,18 +548,6 @@ const ApplicationForm = ({ variant = "default" }: ApplicationFormProps) => {
               onChange={(e) => setAnswers({ ...answers, phone: e.target.value })}
               className="h-11 sm:h-12 bg-muted border-border focus:border-primary text-sm sm:text-base"
               required
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="social" className="text-xs sm:text-sm font-medium uppercase tracking-wider">
-              Instagram
-            </Label>
-            <Input
-              id="social"
-              placeholder="@handle"
-              value={answers.social}
-              onChange={(e) => setAnswers({ ...answers, social: e.target.value })}
-              className="h-11 sm:h-12 bg-muted border-border focus:border-primary text-sm sm:text-base"
             />
           </div>
           <p className="text-xs sm:text-sm text-muted-foreground text-center leading-relaxed">

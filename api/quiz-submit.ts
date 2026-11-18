@@ -27,6 +27,7 @@ function splitName(fullName: string): { firstName?: string; lastName?: string } 
 }
 
 type QuizSubmitBody = {
+  partial?: boolean;
   name?: string;
   email?: string;
   phone?: string;
@@ -273,6 +274,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     body = (typeof req.body === "string" ? JSON.parse(req.body) : req.body) || {};
   } catch {
     return res.status(400).json({ error: "Invalid JSON body" });
+  }
+
+  // Partial lead (Instagram slide, before contact info): Sweep webhook only.
+  // No form_submit event, Zapier or GHL yet, those need email/phone and fire on the full submit.
+  if (body.partial) {
+    if (!body.social?.trim()) {
+      return res.status(400).json({ error: "social required for partial submit" });
+    }
+    const sweepWebhook = await forwardSweepWebhook(body).catch((e) => ({
+      ok: false,
+      error: e instanceof Error ? e.message : "sweep webhook failed",
+    }));
+    console.log("quiz-submit partial results", JSON.stringify({ sweepWebhook }));
+    return res.status(200).json({ ok: true, partial: true, results: { sweepWebhook } });
   }
 
   if (!body.email?.trim() && !body.phone?.trim()) {
