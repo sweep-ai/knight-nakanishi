@@ -73,6 +73,18 @@ function toE164(phone: string | undefined): string | undefined {
   return undefined;
 }
 
+let calPreloadStarted = false;
+
+/** Warm the Cal script and calendar assets while the quiz is still on screen. */
+export function preloadCalBooking() {
+  if (calPreloadStarted) return;
+  calPreloadStarted = true;
+  const Cal = loadCal();
+  Cal("init", CAL_NAMESPACE, { origin: CAL_ORIGIN });
+  const ns = Cal.ns?.[CAL_NAMESPACE];
+  ns?.("preload", { calLink: CAL_LINK });
+}
+
 const CalBookingEmbed = () => {
   const navigate = useNavigate();
   const routed = useRef(false);
@@ -81,6 +93,25 @@ const CalBookingEmbed = () => {
     const Cal = loadCal();
     Cal("init", CAL_NAMESPACE, { origin: CAL_ORIGIN });
     const ns = Cal.ns![CAL_NAMESPACE] as CalFn;
+
+    const goPostBooking = () => {
+      if (routed.current) return;
+      routed.current = true;
+      try {
+        const sessionId = getSessionId();
+        void trackEvent(funnelEvent.callBooked, { page_id: "booking" }, `${funnelEvent.callBooked}_${sessionId}`);
+        trackMeta("Schedule");
+      } catch (error) {
+        console.error("booking tracking:", error);
+      }
+      navigate("/post-booking", { replace: true });
+    };
+
+    // bookingSuccessful is deprecated. Current embeds emit bookingSuccessfulV2.
+    const successActions = ["bookingSuccessfulV2", "bookingSuccessful"] as const;
+    for (const action of successActions) {
+      ns("on", { action, callback: goPostBooking });
+    }
 
     const applicant = readApplicant();
     const phone = toE164(applicant.phone);
@@ -99,17 +130,11 @@ const CalBookingEmbed = () => {
     });
     ns("ui", { hideEventTypeDetails: false, layout: "month_view" });
 
-    ns("on", {
-      action: "bookingSuccessful",
-      callback: () => {
-        if (routed.current) return;
-        routed.current = true;
-        const sessionId = getSessionId();
-        void trackEvent(funnelEvent.callBooked, { page_id: "booking" }, `${funnelEvent.callBooked}_${sessionId}`);
-        trackMeta("Schedule");
-        navigate("/post-booking", { replace: true });
-      },
-    });
+    return () => {
+      for (const action of successActions) {
+        ns("off", { action, callback: goPostBooking });
+      }
+    };
   }, [navigate]);
 
   return (

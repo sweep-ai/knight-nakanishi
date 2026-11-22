@@ -1,4 +1,3 @@
-import { Instagram, Youtube, Mail } from "lucide-react";
 import { Link } from "react-router-dom";
 
 interface FooterProps {
@@ -18,31 +17,6 @@ const Footer = ({ variant = "default" }: FooterProps) => {
             <p className="text-xs sm:text-sm text-muted-foreground mt-1">
               {variant === "whop" ? "Culture-first fitness coaching" : "Transform without sacrifice"}
             </p>
-          </div>
-
-          {/* Social links */}
-          <div className="flex items-center gap-3 sm:gap-4 order-2 md:order-2">
-            <a
-              href="#"
-              className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center bg-muted rounded-sm hover:bg-primary hover:text-accent transition-colors"
-              aria-label="Instagram"
-            >
-              <Instagram className="w-4 h-4 sm:w-5 sm:h-5" />
-            </a>
-            <a
-              href="#"
-              className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center bg-muted rounded-sm hover:bg-primary hover:text-accent transition-colors"
-              aria-label="YouTube"
-            >
-              <Youtube className="w-4 h-4 sm:w-5 sm:h-5" />
-            </a>
-            <a
-              href="#"
-              className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center bg-muted rounded-sm hover:bg-primary hover:text-accent transition-colors"
-              aria-label="Email"
-            >
-              <Mail className="w-4 h-4 sm:w-5 sm:h-5" />
-            </a>
           </div>
 
           {/* Copyright */}

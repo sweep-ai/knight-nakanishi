@@ -52,7 +52,7 @@ const QuizHeroSection = ({ variant = "default" }: QuizHeroSectionProps) => {
       <div className="container relative z-10 px-4 sm:px-6 pt-2 sm:pt-8 pb-4 sm:pb-8 md:py-10">
         <div className="max-w-3xl mx-auto">
           {/* Logo */}
-          <div className="flex justify-center -mb-8 sm:-mb-11 md:-mb-14 lg:-mb-16 xl:-mb-[4.5rem]">
+          <div className="flex justify-center -mb-4 sm:-mb-6 md:-mb-8 lg:-mb-9 xl:-mb-10">
             <button
               type="button"
               onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
@@ -66,16 +66,6 @@ const QuizHeroSection = ({ variant = "default" }: QuizHeroSectionProps) => {
               />
             </button>
           </div>
-          {/* Pre-headline badge */}
-          <div className="flex justify-center mb-3 sm:mb-4 animate-fade-in">
-            <div className="inline-flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-full bg-primary/10 border border-primary/30">
-              <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-primary animate-pulse" />
-              <span className="text-xs sm:text-sm font-bold text-primary uppercase tracking-wider">
-                Limited Slots Available
-              </span>
-            </div>
-          </div>
-
           {/* Main headline — Problem + Solution + Outcome; Proof + Novelty + Objection Removal */}
           <h1 className="font-display text-[1.9rem] sm:text-[3.25rem] md:text-[4.25rem] lg:text-[4.75rem] leading-[1.05] mb-4 sm:mb-5 animate-slide-up px-1 text-center max-w-[24ch] mx-auto">
             {isWhop ? (
@@ -86,9 +76,8 @@ const QuizHeroSection = ({ variant = "default" }: QuizHeroSectionProps) => {
               </>
             ) : (
               <>
-                Drop{" "}
-                <span className="text-accent">25+ Lbs</span> Of Fat Without Cutting Out{" "}
-                <span className="text-accent">Pho, Adobo, or Pad Thai</span> 
+                <span className="text-accent">Southeast Asians</span> drop{" "}
+                <span className="text-accent whitespace-nowrap">25+ lbs</span> without sacrificing their culture or food
               </>
             )}
           </h1>
@@ -101,7 +90,7 @@ const QuizHeroSection = ({ variant = "default" }: QuizHeroSectionProps) => {
               </>
             ) : (
               <>
-                Every diet told you to stop eating rice. What if instead we build your plan around pho, larb, tinola so you never have to choose between your goals and your culture.
+                Every program said you can’t prioritize your health without sacrificing family, food, or tradition. Instead we build your plan around pho, adobo, pad Thai and everything else you thought you needed sacrifice. See how ↓
               </>
             )}
           </p>

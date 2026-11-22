@@ -61,6 +61,8 @@ const ApplicationForm = ({ variant = "default" }: ApplicationFormProps) => {
   const startedRef = useRef(false);
   const lastPartialRef = useRef("");
   const advanceTimer = useRef<number | null>(null);
+  const formRef = useRef<HTMLDivElement>(null);
+  const skipCenterRef = useRef(true);
 
   const step = steps[stepIndex];
   const total = steps.length;
@@ -89,6 +91,21 @@ const ApplicationForm = ({ variant = "default" }: ApplicationFormProps) => {
       `${funnelEvent.quizStep(n)}_${sessionId}_${FORM_ID}`
     );
   }, [stepIndex, variant]);
+
+  useEffect(() => {
+    if (skipCenterRef.current) {
+      skipCenterRef.current = false;
+      return;
+    }
+    const frame = window.requestAnimationFrame(() => {
+      const el = formRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const top = window.scrollY + rect.top - (window.innerHeight - rect.height) / 2;
+      window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [stepIndex, disqualified]);
 
   const goNext = () => {
     setStepIndex((i) => Math.min(i + 1, total - 1));
@@ -359,7 +376,7 @@ const ApplicationForm = ({ variant = "default" }: ApplicationFormProps) => {
 
   if (disqualified) {
     return (
-      <div className="bg-card rounded-sm border border-border p-6 sm:p-8 shadow-2xl">
+      <div ref={formRef} className="bg-card rounded-sm border border-border p-6 sm:p-8 shadow-2xl">
         <h2 className="font-display text-2xl sm:text-3xl mb-3 text-center">Not the right time</h2>
         <p className="text-sm sm:text-base text-muted-foreground text-center mb-6">
           Coaching only works when you&apos;re ready to invest. We captured your info. When you&apos;re ready, come back and apply again.
@@ -375,7 +392,15 @@ const ApplicationForm = ({ variant = "default" }: ApplicationFormProps) => {
     step.type === "yesno" || step.type === "single" ? answers[step.id] : "";
 
   return (
-    <div id="application-form" className="bg-card rounded-sm border border-border p-6 sm:p-8 shadow-2xl">
+    <div ref={formRef} id="application-form" className="bg-card rounded-sm border border-border p-6 sm:p-8 shadow-2xl">
+      <div className="flex justify-center mb-4 sm:mb-5">
+        <div className="inline-flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-full bg-primary/10 border border-primary/30">
+          <span className="inline-block w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-primary animate-dot-pulse" />
+          <span className="text-xs sm:text-sm font-bold text-primary uppercase tracking-wider">
+            Limited Slots Available
+          </span>
+        </div>
+      </div>
       <div className="mb-6">
         <div className="flex items-center justify-between mb-2">
           <span className="text-xs sm:text-sm text-muted-foreground">
