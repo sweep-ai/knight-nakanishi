@@ -24,7 +24,7 @@ const StorySection = ({ variant = "default" }: StorySectionProps) => {
       <div className="container px-4 sm:px-6">
         <div className="max-w-2xl mx-auto">
           <h2 className="font-display text-4xl sm:text-5xl md:text-6xl mb-8 text-center leading-[1.04]">
-            Knight Fit is for you <span className="text-accent">if...</span>
+            Knight Fit is for you <span className="text-gold">if...</span>
           </h2>
           <ul className="space-y-4 mb-8">
             {points.map((point) => (

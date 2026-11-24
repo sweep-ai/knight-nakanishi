@@ -24,7 +24,8 @@
     --muted: 0 0% 18%;
     --muted-foreground: 0 0% 70%;
 
-    --accent: 45 96% 56%;
+    /* Premium gold (replaces the old bright yellow) */
+    --accent: 40 50% 60%;
     --accent-foreground: 0 0% 10%;
 
     --destructive: 0 84% 50%;
@@ -42,17 +43,20 @@
     --knight-grey: 0 0% 90%;
     --knight-light: 0 0% 96%;
     --knight-red: 0 84% 50%;
-    --knight-yellow: 45 96% 56%;
+    --knight-yellow: 40 50% 60%; /* legacy name, now gold */
+    --knight-gold: 40 50% 60%;
+    --knight-gold-light: 42 62% 78%;
+    --knight-gold-deep: 36 45% 42%;
     
     /* Gradients */
     --gradient-hero: linear-gradient(135deg, hsl(0 0% 10%) 0%, hsl(0 0% 18%) 100%);
     --gradient-card: linear-gradient(180deg, hsl(0 0% 15%) 0%, hsl(0 0% 10%) 100%);
     --gradient-cta: linear-gradient(135deg, hsl(0 84% 50%) 0%, hsl(0 84% 40%) 100%);
-    --gradient-accent-border: linear-gradient(135deg, hsl(0 84% 50%) 0%, hsl(45 96% 56%) 100%);
+    --gradient-accent-border: linear-gradient(135deg, hsl(0 84% 50%) 0%, hsl(40 50% 60%) 100%);
 
     /* Shadows */
     --shadow-glow-red: 0 0 40px hsl(0 84% 50% / 0.3);
-    --shadow-glow-yellow: 0 0 40px hsl(45 96% 56% / 0.3);
+    --shadow-glow-yellow: 0 0 40px hsl(40 50% 60% / 0.25);
     --shadow-card: 0 10px 40px hsl(0 0% 0% / 0.5);
 
     /* Typography — Anton display + DM Sans body (model: knightfit-landing) */
@@ -150,6 +154,36 @@
     background-clip: text;
   }
 
+  /* Brushed-metal gold text for headline highlights */
+  .text-gold {
+    background: linear-gradient(
+      100deg,
+      hsl(var(--knight-gold-deep)) 0%,
+      hsl(var(--knight-gold)) 30%,
+      hsl(var(--knight-gold-light)) 50%,
+      hsl(var(--knight-gold)) 70%,
+      hsl(var(--knight-gold-deep)) 100%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Hairline gold edge across the top of a card */
+  .gold-hairline {
+    position: relative;
+  }
+  .gold-hairline::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 12%;
+    right: 12%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, hsl(var(--knight-gold-light) / 0.9), transparent);
+    pointer-events: none;
+  }
+
   .btn-primary {
     @apply bg-primary text-accent font-bold uppercase tracking-wider px-8 py-4 transition-all duration-300;
     box-shadow: var(--shadow-glow-red);
@@ -161,7 +195,7 @@
   }
 
   .btn-accent {
-    @apply bg-accent text-primary font-bold uppercase tracking-wider px-8 py-4 transition-all duration-300;
+    @apply bg-accent text-accent-foreground font-bold uppercase tracking-wider px-8 py-4 transition-all duration-300;
     box-shadow: var(--shadow-glow-yellow);
   }
 

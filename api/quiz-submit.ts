@@ -123,7 +123,7 @@ async function forwardSweepWebhook(body: QuizSubmitBody) {
   }
   const prior =
     body.priorAttempts || (typeof qa.priorAttempts === "string" ? qa.priorAttempts : "");
-  if (prior.trim()) answers["What have you tried before and what happened?"] = prior.trim();
+  if (prior.trim()) answers["What have you tried before?"] = prior.trim();
   const age = body.age || (typeof qa.age === "string" ? qa.age : "");
   if (age.trim()) answers.Age = age.trim();
   const work = body.occupation || (typeof qa.occupation === "string" ? qa.occupation : "");

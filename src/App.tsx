@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import Index from "./pages/Index";
 import Whop from "./pages/Whop";
+import { FilipinaLanding, ThaiLaoLanding } from "./pages/AudienceLandings";
 import BookingPage from "./pages/BookingPage";
 import PostBookingPage from "./pages/PostBookingPage";
 import Cookbook from "./pages/Cookbook";
@@ -41,6 +42,8 @@ const App = () => (
         <ScrollToTop />
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/filipina" element={<FilipinaLanding />} />
+          <Route path="/thai-lao" element={<ThaiLaoLanding />} />
           <Route path="/whop" element={<Whop />} />
           <Route path="/booking" element={<BookingPage />} />
           <Route path="/post-booking" element={<PostBookingPage />} />

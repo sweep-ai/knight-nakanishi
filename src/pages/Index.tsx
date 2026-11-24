@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, type ReactNode } from "react";
 import QuizHeroSection from "@/components/QuizHeroSection";
 import StorySection from "@/components/StorySection";
 import AuthoritySection from "@/components/AuthoritySection";
@@ -11,7 +11,12 @@ import { funnelEvent } from "@/config/funnel";
 import { trackMeta } from "@/lib/metaPixel";
 import { getSessionId, trackEvent } from "@/lib/sweep";
 
-const Index = () => {
+interface IndexProps {
+  headline?: ReactNode;
+  subheadline?: ReactNode;
+}
+
+const Index = ({ headline, subheadline }: IndexProps = {}) => {
   useEffect(() => {
     trackMeta("PageView");
     preloadCalBooking();
@@ -21,7 +26,7 @@ const Index = () => {
 
   return (
     <main className="overflow-hidden">
-      <QuizHeroSection />
+      <QuizHeroSection headline={headline} subheadline={subheadline} />
       {/* <ScrollingBanner /> */}
       <TestimonialVideosSection />
       <StorySection />

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Volume2 } from "lucide-react";
 import { WistiaPlayer } from "@wistia/wistia-player-react";
 import ApplicationForm from "@/components/ApplicationForm";
@@ -6,9 +6,13 @@ import { useVideoWatch } from "@/hooks/useVideoWatch";
 
 interface QuizHeroSectionProps {
   variant?: "default" | "whop";
+  /** Overrides the default headline (used by audience landing pages). */
+  headline?: ReactNode;
+  /** Overrides the default subheadline (used by audience landing pages). */
+  subheadline?: ReactNode;
 }
 
-const QuizHeroSection = ({ variant = "default" }: QuizHeroSectionProps) => {
+const QuizHeroSection = ({ variant = "default", headline, subheadline }: QuizHeroSectionProps) => {
   const isWhop = variant === "whop";
   const videoRef = useRef<HTMLVideoElement>(null);
   const [coverOn, setCoverOn] = useState(true);
@@ -68,23 +72,23 @@ const QuizHeroSection = ({ variant = "default" }: QuizHeroSectionProps) => {
           </div>
           {/* Main headline — Problem + Solution + Outcome; Proof + Novelty + Objection Removal */}
           <h1 className="font-display text-[1.9rem] sm:text-[3.25rem] md:text-[4.25rem] lg:text-[4.75rem] leading-[1.05] mb-4 sm:mb-5 animate-slide-up px-1 text-center max-w-[24ch] mx-auto">
-            {isWhop ? (
+            {headline ?? (isWhop ? (
               <>
                 A Method Built Around{" "}
-                <span className="text-accent">Pho, Adobo, and Pad Thai</span>{" "}
+                <span className="text-gold">Pho, Adobo, and Pad Thai</span>{" "}
                 Instead of Cutting Them Out
               </>
             ) : (
               <>
-                <span className="text-accent">Southeast Asians</span> drop{" "}
-                <span className="text-accent whitespace-nowrap">25+ lbs</span> without sacrificing their culture or food
+                <span className="text-gold">Southeast Asians</span> drop{" "}
+                <span className="text-gold whitespace-nowrap">25+ lbs</span> without sacrificing their culture or food
               </>
-            )}
+            ))}
           </h1>
 
           {/* Subheadline — specificity + social proof */}
           <p className="text-base sm:text-lg md:text-xl text-foreground/80 max-w-2xl mx-auto mb-6 sm:mb-8 animate-slide-up px-4 text-center leading-relaxed" style={{ animationDelay: "0.2s" }}>
-            {isWhop ? (
+            {subheadline ?? (isWhop ? (
               <>
                 Every diet told you to stop eating rice. I build your plan around pho, larb, tinola and whatever's on the table at Sunday dinner, so you're not stuck choosing between your goals and your family.
               </>
@@ -92,13 +96,13 @@ const QuizHeroSection = ({ variant = "default" }: QuizHeroSectionProps) => {
               <>
                 Every program said you can’t prioritize your health without sacrificing family, food, or tradition. Instead we build your plan around pho, adobo, pad Thai and everything else you thought you needed sacrifice. See how ↓
               </>
-            )}
+            ))}
           </p>
 
           {/* VSL */}
           <div className="video-frame relative w-full max-w-2xl mx-auto mb-6 sm:mb-8 animate-slide-up overflow-hidden rounded-sm border border-border shadow-2xl aspect-video bg-black" style={{ animationDelay: "0.3s" }}>
             {isWhop ? (
-              <WistiaPlayer mediaId="hbt4xagwap" aspect={1.7777777777777777} />
+              <WistiaPlayer playerColor="CCAA66" mediaId="hbt4xagwap" aspect={1.7777777777777777} />
             ) : (
               <>
                 <video
@@ -133,7 +137,7 @@ const QuizHeroSection = ({ variant = "default" }: QuizHeroSectionProps) => {
 
           <div className="animate-slide-up max-w-2xl mx-auto" style={{ animationDelay: "0.4s" }}>
             <h2 className="font-display text-3xl sm:text-4xl md:text-5xl text-center mb-6 leading-[1.04]">
-             APPLY HERE<span className="text-accent"> In 2 Minutes</span>
+             APPLY HERE<span className="text-gold"> In 2 Minutes</span>
             </h2>
             <ApplicationForm variant={variant} />
           </div>

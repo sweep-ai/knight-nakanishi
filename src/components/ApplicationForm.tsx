@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, ArrowRight, CheckCircle, Loader2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Loader2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { QUIZ_SHEET_WEB_APP_URL } from "@/config/quizSheetConfig";
 import { APPLICANT_STORAGE_KEY, FORM_ID, funnelEvent } from "@/config/funnel";
@@ -14,6 +14,7 @@ import {
   findOption,
   getQuizSteps,
   type ChoiceStep,
+  type MultiStep,
   type QuizVariant,
 } from "@/data/applicationForm";
 
@@ -24,7 +25,7 @@ type Answers = {
   situation: string;
   goal: string;
   readiness: string;
-  priorAttempts: string;
+  priorAttempts: string[];
   occupation: string;
   age: string;
   name: string;
@@ -38,7 +39,7 @@ const emptyAnswers: Answers = {
   situation: "",
   goal: "",
   readiness: "",
-  priorAttempts: "",
+  priorAttempts: [],
   occupation: "",
   age: "",
   name: "",
@@ -137,16 +138,58 @@ const ApplicationForm = ({ variant = "default" }: ApplicationFormProps) => {
     return true;
   };
 
+  const toggleMulti = (value: string) => {
+    if (step.type !== "multi") return;
+    markStarted();
+    const option = findOption(step, value);
+    setAnswers((prev) => {
+      const current = prev.priorAttempts;
+      if (current.includes(value)) {
+        return { ...prev, priorAttempts: current.filter((v) => v !== value) };
+      }
+      if (option?.exclusive) return { ...prev, priorAttempts: [value] };
+      const exclusive = new Set(step.options.filter((o) => o.exclusive).map((o) => o.value));
+      return { ...prev, priorAttempts: [...current.filter((v) => !exclusive.has(v)), value] };
+    });
+  };
+
   const handleHistoryContinue = () => {
-    if (!answers.priorAttempts.trim()) {
+    if (!answers.priorAttempts.length) {
       toast({
         title: "One more thing",
-        description: "Tell us what you tried and what happened.",
+        description: "Select everything you've tried before.",
         variant: "destructive",
       });
       return;
     }
     goNext();
+  };
+
+  const handleGoalContinue = () => {
+    if (!answers.goal.trim()) {
+      toast({
+        title: "One more thing",
+        description: "Tell us your main goal for the next 6 months.",
+        variant: "destructive",
+      });
+      return;
+    }
+    markStarted();
+    goNext();
+  };
+
+  // Selected prior-attempt options as labels (joined for CRM/sheet fields) and codes.
+  const priorAttemptsAnswer = () => {
+    const s = steps.find((st): st is MultiStep => st.id === "priorAttempts");
+    const codes = answers.priorAttempts;
+    const labels = codes.map((code) => (s ? findOption(s, code)?.label : undefined) ?? code);
+    return { prompt: s?.prompt ?? "priorAttempts", codes, text: labels.join(", ") };
+  };
+
+  const goalAnswer = () => {
+    const s = steps.find((st) => st.id === "goal");
+    const text = answers.goal.trim();
+    return { prompt: s?.prompt ?? "goal", code: "", label: text };
   };
 
   const handleOccupationContinue = () => {
@@ -195,7 +238,8 @@ const ApplicationForm = ({ variant = "default" }: ApplicationFormProps) => {
     const { dqReason } = readinessDq();
     const culturalFoods = labeled("culturalFoods");
     const situation = labeled("situation");
-    const goal = labeled("goal");
+    const goal = goalAnswer();
+    const prior = priorAttemptsAnswer();
     const readiness = labeled("readiness");
     const visitorId =
       typeof localStorage !== "undefined" ? localStorage.getItem("sweep_visitor_id") || undefined : undefined;
@@ -209,14 +253,14 @@ const ApplicationForm = ({ variant = "default" }: ApplicationFormProps) => {
         social,
         occupation: answers.occupation.trim(),
         age: answers.age.trim(),
-        priorAttempts: answers.priorAttempts.trim(),
+        priorAttempts: prior.text,
         leadStatus: "partial",
         dqReason,
         formId: FORM_ID,
         visitorId,
         sessionId,
         idempotencyKey: `partial_${sessionId}_${FORM_ID}_${social.toLowerCase()}`,
-        quizAnswers: { culturalFoods, situation, goal, readiness },
+        quizAnswers: { culturalFoods, situation, goal, readiness, priorAttempts: prior.text, priorAttempts_codes: prior.codes },
         notes: `partial. Goal: ${goal.label}. Readiness: ${readiness.label}. Instagram: ${social}.`,
         utm: getUtm(),
         pageUrl: typeof window !== "undefined" ? window.location.href : undefined,
@@ -250,7 +294,8 @@ const ApplicationForm = ({ variant = "default" }: ApplicationFormProps) => {
 
     const culturalFoods = labeled("culturalFoods");
     const situation = labeled("situation");
-    const goal = labeled("goal");
+    const goal = goalAnswer();
+    const prior = priorAttemptsAnswer();
     const readiness = labeled("readiness");
 
     const quizAnswers = {
@@ -258,7 +303,8 @@ const ApplicationForm = ({ variant = "default" }: ApplicationFormProps) => {
       situation,
       goal,
       readiness,
-      priorAttempts: answers.priorAttempts.trim(),
+      priorAttempts: prior.text,
+      priorAttempts_codes: prior.codes,
       occupation: answers.occupation.trim(),
       age: answers.age.trim() || null,
       social: answers.social.trim() || null,
@@ -290,7 +336,7 @@ const ApplicationForm = ({ variant = "default" }: ApplicationFormProps) => {
           social: answers.social.trim(),
           occupation: answers.occupation.trim(),
           age: answers.age.trim(),
-          priorAttempts: answers.priorAttempts.trim(),
+          priorAttempts: prior.text,
           leadStatus,
           dqReason,
           formId: FORM_ID,
@@ -298,7 +344,7 @@ const ApplicationForm = ({ variant = "default" }: ApplicationFormProps) => {
           sessionId,
           idempotencyKey,
           quizAnswers,
-          notes: `${leadStatus}. Goal: ${goal.label}. Tried: ${answers.priorAttempts.trim()}. Readiness: ${readiness.label}. Work: ${answers.occupation.trim()}.`,
+          notes: `${leadStatus}. Goal: ${goal.label}. Tried: ${prior.text}. Readiness: ${readiness.label}. Work: ${answers.occupation.trim()}.`,
           culturalFoods: culturalFoods.label,
           culturalFoods_code: culturalFoods.code,
           situation: situation.label,
@@ -332,8 +378,8 @@ const ApplicationForm = ({ variant = "default" }: ApplicationFormProps) => {
             social: answers.social.trim(),
             occupation: answers.occupation.trim(),
             age: answers.age.trim(),
-            priorAttempts: answers.priorAttempts.trim(),
-            goal: goal.code,
+            priorAttempts: prior.text,
+            goal: goal.label,
             situation: situation.code,
             readiness: readiness.code,
             leadStatus,
@@ -376,7 +422,7 @@ const ApplicationForm = ({ variant = "default" }: ApplicationFormProps) => {
 
   if (disqualified) {
     return (
-      <div ref={formRef} className="bg-card rounded-sm border border-border p-6 sm:p-8 shadow-2xl">
+      <div ref={formRef} className="gold-hairline bg-card rounded-3xl border border-accent/20 p-5 sm:p-8 shadow-2xl">
         <h2 className="font-display text-2xl sm:text-3xl mb-3 text-center">Not the right time</h2>
         <p className="text-sm sm:text-base text-muted-foreground text-center mb-6">
           Coaching only works when you&apos;re ready to invest. We captured your info. When you&apos;re ready, come back and apply again.
@@ -392,11 +438,11 @@ const ApplicationForm = ({ variant = "default" }: ApplicationFormProps) => {
     step.type === "yesno" || step.type === "single" ? answers[step.id] : "";
 
   return (
-    <div ref={formRef} id="application-form" className="bg-card rounded-sm border border-border p-6 sm:p-8 shadow-2xl">
+    <div ref={formRef} id="application-form" className="gold-hairline bg-card rounded-3xl border border-accent/20 p-5 sm:p-8 shadow-2xl">
       <div className="flex justify-center mb-4 sm:mb-5">
-        <div className="inline-flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-full bg-primary/10 border border-primary/30">
-          <span className="inline-block w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-primary animate-dot-pulse" />
-          <span className="text-xs sm:text-sm font-bold text-primary uppercase tracking-wider">
+        <div className="inline-flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-full bg-accent/10 border border-accent/30">
+          <span className="inline-block w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-accent animate-dot-pulse" />
+          <span className="text-xs sm:text-sm font-bold text-accent uppercase tracking-wider">
             Limited Slots Available
           </span>
         </div>
@@ -410,9 +456,9 @@ const ApplicationForm = ({ variant = "default" }: ApplicationFormProps) => {
             {Math.round(((stepIndex + 1) / total) * 100)}%
           </span>
         </div>
-        <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
+        <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
           <div
-            className="h-full bg-gradient-to-r from-primary to-accent transition-all duration-300"
+            className="h-full rounded-full bg-gradient-to-r from-[hsl(var(--knight-gold-deep))] via-accent to-[hsl(var(--knight-gold-light))] transition-all duration-300"
             style={{ width: `${((stepIndex + 1) / total) * 100}%` }}
           />
         </div>
@@ -427,19 +473,19 @@ const ApplicationForm = ({ variant = "default" }: ApplicationFormProps) => {
               key={option.value}
               type="button"
               onClick={() => handleChoice(option.value)}
-              className={`w-full p-4 sm:p-5 rounded-sm border-2 text-left transition-all duration-200 ${
+              className={`w-full p-4 sm:p-5 rounded-2xl border text-left transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
                 selectedChoice === option.value
-                  ? "border-primary bg-primary/10 shadow-lg scale-[1.02]"
-                  : "border-border bg-muted/30 hover:border-primary/50 hover:bg-muted/50"
+                  ? "border-primary bg-primary/10"
+                  : "border-white/10 bg-white/[0.03] hover:border-white/25 hover:bg-white/[0.06]"
               }`}
             >
               <div className="flex items-start gap-3">
                 <div
-                  className={`mt-0.5 flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                    selectedChoice === option.value ? "border-primary bg-primary" : "border-muted-foreground"
+                  className={`mt-0.5 flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${
+                    selectedChoice === option.value ? "border-primary" : "border-muted-foreground/60"
                   }`}
                 >
-                  {selectedChoice === option.value && <CheckCircle className="w-4 h-4 text-accent fill-accent" />}
+                  {selectedChoice === option.value && <span className="w-2.5 h-2.5 rounded-full bg-primary" />}
                 </div>
                 <div className="flex-1">
                   <div className="font-semibold text-sm sm:text-base mb-1">{option.label}</div>
@@ -453,16 +499,56 @@ const ApplicationForm = ({ variant = "default" }: ApplicationFormProps) => {
         </div>
       )}
 
-      {step.type === "history" && (
+      {step.type === "text" && (
         <div className="space-y-4 sm:space-y-6">
           <Textarea
-            id="priorAttempts"
-            placeholder="Diets, gyms, apps, what stuck and what didn't..."
-            value={answers.priorAttempts}
-            onChange={(e) => setAnswers({ ...answers, priorAttempts: e.target.value })}
-            className="min-h-36 bg-muted border-border focus:border-primary text-sm sm:text-base"
+            id={step.id}
+            placeholder={step.placeholder}
+            value={answers.goal}
+            onChange={(e) => setAnswers({ ...answers, goal: e.target.value })}
+            className="min-h-36 rounded-2xl bg-white/[0.03] border-white/10 p-4 focus:border-primary focus-visible:ring-0 focus-visible:ring-offset-0 text-sm sm:text-base"
           />
-          <Button type="button" variant="hero" size="xl" className="w-full font-display" onClick={handleHistoryContinue}>
+          <Button type="button" variant="hero" size="xl" className="w-full rounded-2xl font-display" onClick={handleGoalContinue}>
+            Continue
+            <ArrowRight className="w-4 h-4 ml-2" />
+          </Button>
+        </div>
+      )}
+
+      {step.type === "multi" && (
+        <div className="space-y-3 sm:space-y-4">
+          <p className="-mt-3 sm:-mt-5 mb-2 text-center text-xs sm:text-sm uppercase tracking-wider text-accent/80">
+            {step.hint}
+          </p>
+          {step.options.map((option) => {
+            const checked = answers.priorAttempts.includes(option.value);
+            return (
+              <button
+                key={option.value}
+                type="button"
+                role="checkbox"
+                aria-checked={checked}
+                onClick={() => toggleMulti(option.value)}
+                className={`w-full p-4 sm:p-5 rounded-2xl border text-left transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                  checked
+                    ? "border-primary bg-primary/10"
+                    : "border-white/10 bg-white/[0.03] hover:border-white/25 hover:bg-white/[0.06]"
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <div
+                    className={`flex-shrink-0 w-5 h-5 rounded-md border-2 flex items-center justify-center transition-colors ${
+                      checked ? "border-primary bg-primary" : "border-muted-foreground/60"
+                    }`}
+                  >
+                    {checked && <Check className="w-3.5 h-3.5 text-primary-foreground" strokeWidth={3} />}
+                  </div>
+                  <div className="font-semibold text-sm sm:text-base">{option.label}</div>
+                </div>
+              </button>
+            );
+          })}
+          <Button type="button" variant="hero" size="xl" className="w-full rounded-2xl font-display !mt-6" onClick={handleHistoryContinue}>
             Continue
             <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
@@ -481,7 +567,7 @@ const ApplicationForm = ({ variant = "default" }: ApplicationFormProps) => {
               placeholder="e.g. 28"
               value={answers.age}
               onChange={(e) => setAnswers({ ...answers, age: e.target.value })}
-              className="h-11 sm:h-12 bg-muted border-border focus:border-primary text-sm sm:text-base"
+              className="h-12 rounded-xl bg-white/[0.03] border-white/10 px-4 focus:border-primary focus-visible:ring-0 focus-visible:ring-offset-0 text-sm sm:text-base"
             />
           </div>
           <div className="space-y-2">
@@ -493,10 +579,10 @@ const ApplicationForm = ({ variant = "default" }: ApplicationFormProps) => {
               placeholder="Student, nurse, business owner..."
               value={answers.occupation}
               onChange={(e) => setAnswers({ ...answers, occupation: e.target.value })}
-              className="h-11 sm:h-12 bg-muted border-border focus:border-primary text-sm sm:text-base"
+              className="h-12 rounded-xl bg-white/[0.03] border-white/10 px-4 focus:border-primary focus-visible:ring-0 focus-visible:ring-offset-0 text-sm sm:text-base"
             />
           </div>
-          <Button type="button" variant="hero" size="xl" className="w-full font-display" onClick={handleOccupationContinue}>
+          <Button type="button" variant="hero" size="xl" className="w-full rounded-2xl font-display" onClick={handleOccupationContinue}>
             Continue
             <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
@@ -522,10 +608,10 @@ const ApplicationForm = ({ variant = "default" }: ApplicationFormProps) => {
                   handleSocialContinue();
                 }
               }}
-              className="h-11 sm:h-12 bg-muted border-border focus:border-primary text-sm sm:text-base"
+              className="h-12 rounded-xl bg-white/[0.03] border-white/10 px-4 focus:border-primary focus-visible:ring-0 focus-visible:ring-offset-0 text-sm sm:text-base"
             />
           </div>
-          <Button type="button" variant="hero" size="xl" className="w-full font-display" onClick={handleSocialContinue}>
+          <Button type="button" variant="hero" size="xl" className="w-full rounded-2xl font-display" onClick={handleSocialContinue}>
             Continue
             <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
@@ -543,7 +629,7 @@ const ApplicationForm = ({ variant = "default" }: ApplicationFormProps) => {
               placeholder="Enter your name"
               value={answers.name}
               onChange={(e) => setAnswers({ ...answers, name: e.target.value })}
-              className="h-11 sm:h-12 bg-muted border-border focus:border-primary text-sm sm:text-base"
+              className="h-12 rounded-xl bg-white/[0.03] border-white/10 px-4 focus:border-primary focus-visible:ring-0 focus-visible:ring-offset-0 text-sm sm:text-base"
               required
             />
           </div>
@@ -557,7 +643,7 @@ const ApplicationForm = ({ variant = "default" }: ApplicationFormProps) => {
               placeholder="your@email.com"
               value={answers.email}
               onChange={(e) => setAnswers({ ...answers, email: e.target.value })}
-              className="h-11 sm:h-12 bg-muted border-border focus:border-primary text-sm sm:text-base"
+              className="h-12 rounded-xl bg-white/[0.03] border-white/10 px-4 focus:border-primary focus-visible:ring-0 focus-visible:ring-offset-0 text-sm sm:text-base"
               required
             />
           </div>
@@ -571,7 +657,7 @@ const ApplicationForm = ({ variant = "default" }: ApplicationFormProps) => {
               placeholder="+1 (555) 000-0000"
               value={answers.phone}
               onChange={(e) => setAnswers({ ...answers, phone: e.target.value })}
-              className="h-11 sm:h-12 bg-muted border-border focus:border-primary text-sm sm:text-base"
+              className="h-12 rounded-xl bg-white/[0.03] border-white/10 px-4 focus:border-primary focus-visible:ring-0 focus-visible:ring-offset-0 text-sm sm:text-base"
               required
             />
           </div>
@@ -586,7 +672,7 @@ const ApplicationForm = ({ variant = "default" }: ApplicationFormProps) => {
             </Link>
             . No spam, ever.
           </p>
-          <Button type="submit" variant="hero" size="xl" className="w-full font-display text-base sm:text-lg" disabled={isSubmitting}>
+          <Button type="submit" variant="hero" size="xl" className="w-full rounded-2xl font-display text-base sm:text-lg" disabled={isSubmitting}>
             {isSubmitting ? (
               <>
                 <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin mr-2" />
@@ -604,7 +690,7 @@ const ApplicationForm = ({ variant = "default" }: ApplicationFormProps) => {
 
       {stepIndex > 0 && (
         <div className="mt-6">
-          <Button type="button" variant="ghost" onClick={handleBack} className="text-muted-foreground hover:text-foreground">
+          <Button type="button" variant="ghost" onClick={handleBack} className="text-muted-foreground hover:text-foreground hover:bg-white/5">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back
           </Button>

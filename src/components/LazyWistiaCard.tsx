@@ -33,7 +33,7 @@ export const LazyWistiaCard = ({ video }: { video: WistiaClip }) => {
     <div ref={ref} className="overflow-hidden rounded-sm border border-border bg-card">
       <div className="relative w-full overflow-hidden bg-muted" style={{ aspectRatio: `${video.aspect}` }}>
         {active ? (
-          <WistiaPlayer mediaId={video.mediaId} aspect={video.aspect} />
+          <WistiaPlayer playerColor="CCAA66" mediaId={video.mediaId} aspect={video.aspect} />
         ) : (
           <img src={video.poster} alt="" className="h-full w-full object-cover" loading="lazy" />
         )}

@@ -135,7 +135,7 @@ const PostBookingPage = () => {
               This video is <span className="text-primary font-bold uppercase tracking-wider">mandatory</span> before your call. Watch it so the session can focus on your specific plan instead of covering basics.
             </p>
             <div className="overflow-hidden rounded-sm border border-border bg-card">
-              <WistiaPlayer mediaId="q64tsjd34l" aspect={16 / 9} />
+              <WistiaPlayer playerColor="CCAA66" mediaId="q64tsjd34l" aspect={16 / 9} />
             </div>
             <div className="mt-6 bg-card border-l-4 border-accent rounded-sm p-5 sm:p-6">
               <p className="text-sm sm:text-base text-foreground font-medium mb-2">
@@ -151,7 +151,7 @@ const PostBookingPage = () => {
             <StepPill n={2} />
             <div className="bg-card rounded-lg p-5 sm:p-8">
             <h2 className="font-display text-2xl sm:text-3xl md:text-4xl uppercase tracking-wide mb-6">
-              Before the call, <span className="text-accent">lock in your spot</span>
+              Before the call, <span className="text-gold">lock in your spot</span>
             </h2>
             <ul className="space-y-4 mb-6">
               {lockInSteps.map((step) => (
@@ -177,6 +177,7 @@ const PostBookingPage = () => {
             </p>
             <div className="overflow-hidden rounded-sm border border-border bg-card">
               <WistiaPlayer
+                playerColor="CCAA66"
                 mediaId="hbt4xagwap"
                 aspect={16 / 9}
                 onEnd={() => setWatchedMethod(true)}

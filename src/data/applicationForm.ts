@@ -5,10 +5,12 @@ export type ChoiceOption = {
   label: string;
   description?: string;
   disqualify?: boolean;
+  /** Multi-select only: picking this clears every other option (e.g. "nothing yet"). */
+  exclusive?: boolean;
 };
 
 export type ChoiceStep = {
-  id: "culturalFoods" | "situation" | "goal" | "readiness";
+  id: "culturalFoods" | "situation" | "readiness";
   type: "yesno" | "single";
   prompt: string;
   options: ChoiceOption[];
@@ -20,10 +22,19 @@ export type OccupancyStep = {
   prompt: string;
 };
 
-export type HistoryStep = {
-  id: "priorAttempts";
-  type: "history";
+export type TextStep = {
+  id: "goal";
+  type: "text";
   prompt: string;
+  placeholder: string;
+};
+
+export type MultiStep = {
+  id: "priorAttempts";
+  type: "multi";
+  prompt: string;
+  hint: string;
+  options: ChoiceOption[];
 };
 
 export type SocialStep = {
@@ -38,7 +49,7 @@ export type ContactStep = {
   prompt: string;
 };
 
-export type QuizStep = ChoiceStep | OccupancyStep | HistoryStep | SocialStep | ContactStep;
+export type QuizStep = ChoiceStep | TextStep | MultiStep | OccupancyStep | SocialStep | ContactStep;
 
 const culturalFoodsStep: ChoiceStep = {
   id: "culturalFoods",
@@ -78,10 +89,19 @@ const situationStep: ChoiceStep = {
   ],
 };
 
-const historyStep: HistoryStep = {
+const historyStep: MultiStep = {
   id: "priorAttempts",
-  type: "history",
-  prompt: "What have you tried before and what happened?",
+  type: "multi",
+  prompt: "What have you tried before?",
+  hint: "Select all that apply",
+  options: [
+    { value: "keto-fasting", label: "Keto or intermittent fasting" },
+    { value: "gym-solo", label: "Going to the gym on my own" },
+    { value: "apps-programs", label: "Apps or online programs" },
+    { value: "trainer-coach", label: "A personal trainer or coach" },
+    { value: "meal-plans", label: "Meal plans or meal prep" },
+    { value: "nothing-yet", label: "Nothing yet, this is my first real try", exclusive: true },
+  ],
 };
 
 const readinessStep: ChoiceStep = {
@@ -118,49 +138,17 @@ const contactStep: ContactStep = {
   prompt: "Contact info",
 };
 
-function goalStep(variant: QuizVariant): ChoiceStep {
-  const loseFat: ChoiceOption =
-    variant === "whop"
-      ? {
-          value: "lose-fat",
-          label: "Get in better shape",
-          description: "Without giving up the food I grew up on",
-        }
-      : {
-          value: "lose-fat",
-          label: "Lose fat",
-          description: "Without giving up the food I grew up on",
-        };
+const goalStep: TextStep = {
+  id: "goal",
+  type: "text",
+  prompt: "What is your primary goal over the next 6 months?",
+  placeholder: "e.g. Lose 20 lbs, fit into my old clothes, have energy to keep up with my kids...",
+};
 
-  return {
-    id: "goal",
-    type: "single",
-    prompt: "What is your primary goal over the next 6 months?",
-    options: [
-      loseFat,
-      {
-        value: "build-muscle",
-        label: "Build muscle and get strong",
-        description: "Without living in the gym",
-      },
-      {
-        value: "body-confidence",
-        label: "Feel confident in my body again",
-        description: "Look in the mirror and like what I see",
-      },
-      {
-        value: "healthiest",
-        label: "Be the healthiest I've ever been",
-        description: "And still eat with my family",
-      },
-    ],
-  };
+export function getQuizSteps(_variant: QuizVariant = "default"): QuizStep[] {
+  return [culturalFoodsStep, goalStep, situationStep, historyStep, readinessStep, occupationStep, socialStep, contactStep];
 }
 
-export function getQuizSteps(variant: QuizVariant = "default"): QuizStep[] {
-  return [culturalFoodsStep, goalStep(variant), situationStep, historyStep, readinessStep, occupationStep, socialStep, contactStep];
-}
-
-export function findOption(step: ChoiceStep, value: string): ChoiceOption | undefined {
+export function findOption(step: ChoiceStep | MultiStep, value: string): ChoiceOption | undefined {
   return step.options.find((o) => o.value === value);
 }
