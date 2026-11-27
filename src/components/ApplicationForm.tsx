@@ -447,12 +447,12 @@ const ApplicationForm = ({ variant = "default" }: ApplicationFormProps) => {
   if (disqualified) {
     return (
       <div ref={formRef} className="gold-hairline bg-card rounded-3xl border border-accent/20 p-5 sm:p-8 shadow-2xl">
-        <h2 className="font-display text-2xl sm:text-3xl mb-3 text-center">Not the right time</h2>
+        <h2 className="font-display text-2xl sm:text-3xl mb-3 text-center">We received your application</h2>
         <p className="text-sm sm:text-base text-muted-foreground text-center mb-6">
-          Coaching only works when you&apos;re ready to invest. We captured your info. When you&apos;re ready, come back and apply again.
+          Thanks for applying. Our team will reach out to you shortly by text at the number you gave us.
         </p>
         <p className="text-sm text-muted-foreground text-center">
-          Start with the free resource on this page, or watch the video above again.
+          In the meantime, watch the video above again or grab the free resource on this page.
         </p>
       </div>
     );
