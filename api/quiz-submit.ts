@@ -1,4 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
+import { closeLoopPost, flatFields, type CloseLoopResult } from "./_closeloop.js";
 
 const GHL_BASE = "https://services.leadconnectorhq.com";
 const GHL_VERSION = "2021-07-28";
@@ -110,11 +111,8 @@ async function forwardSweepEvent(body: QuizSubmitBody) {
   return { ok: res.ok, status: res.status, data };
 }
 
-async function forwardSweepWebhook(body: QuizSubmitBody) {
-  const url = env("SWEEP_WEBHOOK_URL");
-  if (!url) return { skipped: true, reason: "SWEEP_WEBHOOK_URL missing" };
-
-  const { firstName, lastName } = splitName(body.name || "");
+/** Quiz answers keyed by readable question text (used by the Sweep webhook and CloseLoop). */
+function quizAnswerFields(body: QuizSubmitBody): Record<string, string> {
   const qa = body.quizAnswers || {};
   const answers: Record<string, string> = {};
   for (const key of ["culturalFoods", "situation", "goal", "readiness"] as const) {
@@ -131,6 +129,15 @@ async function forwardSweepWebhook(body: QuizSubmitBody) {
   if (body.leadStatus) answers["Lead status"] = body.leadStatus;
   if (body.dqReason) answers["Disqualify reason"] = body.dqReason;
   if (body.notes) answers.Notes = body.notes;
+  return answers;
+}
+
+async function forwardSweepWebhook(body: QuizSubmitBody) {
+  const url = env("SWEEP_WEBHOOK_URL");
+  if (!url) return { skipped: true, reason: "SWEEP_WEBHOOK_URL missing" };
+
+  const { firstName, lastName } = splitName(body.name || "");
+  const answers = quizAnswerFields(body);
 
   const payload = definedFields({
     name: body.name,
@@ -163,6 +170,36 @@ async function forwardSweepWebhook(body: QuizSubmitBody) {
   });
   const data = await res.json().catch(() => ({}));
   return { ok: res.ok, status: res.status, data };
+}
+
+// CloseLoop AI setter: qualified leads start in "not_booked" (they see the calendar next).
+// If they book, /api/closeloop-booked moves them to "booked". Disqualified leads are not texted.
+async function forwardCloseLoop(body: QuizSubmitBody): Promise<CloseLoopResult> {
+  if (body.leadStatus !== "qualified") return { skipped: true, reason: `leadStatus ${body.leadStatus || "missing"}` };
+  const phone = body.phone?.trim();
+  if (!phone) return { skipped: true, reason: "phone missing" };
+
+  const { firstName, lastName } = splitName(body.name || "");
+  const { "Lead status": _status, Notes: _notes, ...answers } = quizAnswerFields(body);
+  const fields = flatFields(
+    {
+      ...answers,
+      Instagram: body.social,
+      "UTM campaign": body.utm?.campaign,
+      "UTM content": body.utm?.content,
+    },
+    1000
+  );
+
+  return closeLoopPost("/leads/inbound", {
+    phone,
+    first_name: firstName,
+    last_name: lastName,
+    email: body.email?.trim() || undefined,
+    source: `Funnel quiz – ${body.formId || "root-quiz"}`,
+    scenario: "not_booked",
+    fields,
+  });
 }
 
 async function forwardZapier(body: QuizSubmitBody) {
@@ -310,6 +347,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     ghl: await forwardGhl(body).catch((e) => ({
       ok: false,
       error: e instanceof Error ? e.message : "ghl failed",
+    })),
+    closeLoop: await forwardCloseLoop(body).catch((e) => ({
+      ok: false,
+      error: e instanceof Error ? e.message : "closeloop failed",
     })),
   };
 

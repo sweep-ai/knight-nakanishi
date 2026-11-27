@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -9,6 +9,7 @@ import { toast } from "@/hooks/use-toast";
 import { QUIZ_SHEET_WEB_APP_URL } from "@/config/quizSheetConfig";
 import { APPLICANT_STORAGE_KEY, FORM_ID, funnelEvent } from "@/config/funnel";
 import { trackMeta } from "@/lib/metaPixel";
+import CalBookingEmbed, { preloadCalBooking } from "@/components/CalBookingEmbed";
 import { getSessionId, getUtm, trackEvent } from "@/lib/sweep";
 import {
   findOption,
@@ -53,12 +54,13 @@ interface ApplicationFormProps {
 }
 
 const ApplicationForm = ({ variant = "default" }: ApplicationFormProps) => {
-  const navigate = useNavigate();
   const steps = getQuizSteps(variant);
   const [stepIndex, setStepIndex] = useState(0);
   const [answers, setAnswers] = useState<Answers>(emptyAnswers);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [disqualified, setDisqualified] = useState(false);
+  // Qualified leads book inside the quiz card instead of being sent to /booking.
+  const [booking, setBooking] = useState(false);
   const startedRef = useRef(false);
   const lastPartialRef = useRef("");
   const advanceTimer = useRef<number | null>(null);
@@ -73,6 +75,22 @@ const ApplicationForm = ({ variant = "default" }: ApplicationFormProps) => {
       if (advanceTimer.current) window.clearTimeout(advanceTimer.current);
     };
   }, []);
+
+  // Warm the Cal script + booking page so the in-quiz calendar renders without a cold load.
+  // No-op if the page already started the preload.
+  useEffect(() => {
+    preloadCalBooking();
+  }, []);
+
+  useEffect(() => {
+    if (!booking) return;
+    const sessionId = getSessionId();
+    void trackEvent(
+      funnelEvent.bookingPageView,
+      { page_id: "booking", placement: "quiz" },
+      `${funnelEvent.bookingPageView}_${sessionId}`
+    );
+  }, [booking]);
 
   const markStarted = () => {
     if (startedRef.current) return;
@@ -102,11 +120,14 @@ const ApplicationForm = ({ variant = "default" }: ApplicationFormProps) => {
       const el = formRef.current;
       if (!el) return;
       const rect = el.getBoundingClientRect();
-      const top = window.scrollY + rect.top - (window.innerHeight - rect.height) / 2;
+      const top =
+        rect.height > window.innerHeight
+          ? window.scrollY + rect.top - 16
+          : window.scrollY + rect.top - (window.innerHeight - rect.height) / 2;
       window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
     });
     return () => window.cancelAnimationFrame(frame);
-  }, [stepIndex, disqualified]);
+  }, [stepIndex, disqualified, booking]);
 
   const goNext = () => {
     setStepIndex((i) => Math.min(i + 1, total - 1));
@@ -325,10 +346,30 @@ const ApplicationForm = ({ variant = "default" }: ApplicationFormProps) => {
           ? localStorage.getItem("sweep_visitor_id") || undefined
           : undefined;
 
+      // Saved first: the booking embed reads this to prefill name, email, and phone.
+      sessionStorage.setItem(
+        APPLICANT_STORAGE_KEY,
+        JSON.stringify({
+          name: answers.name.trim(),
+          email: answers.email.trim(),
+          phone: answers.phone.trim(),
+          leadStatus,
+        })
+      );
+
+      trackMeta("Lead", {
+        email: answers.email.trim(),
+        phone: answers.phone.trim(),
+        name: answers.name.trim(),
+      });
+
       // Server proxies Sweep + Zapier + GHL (avoids browser CORS / empty Zapier bodies)
-      const submitRes = await fetch("/api/quiz-submit", {
+      // Not awaited: the calendar shows right away while the lead saves. keepalive lets the
+      // request finish even if they book and leave quickly.
+      void fetch("/api/quiz-submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        keepalive: true,
         body: JSON.stringify({
           name: answers.name.trim(),
           email: answers.email.trim(),
@@ -357,14 +398,13 @@ const ApplicationForm = ({ variant = "default" }: ApplicationFormProps) => {
           pageUrl: typeof window !== "undefined" ? window.location.href : undefined,
           pageTitle: typeof document !== "undefined" ? document.title : undefined,
         }),
-      });
-      if (!submitRes.ok) {
-        const detail = await submitRes.json().catch(() => ({}));
-        console.error("quiz-submit:", detail);
-      } else {
-        const detail = await submitRes.json().catch(() => ({}));
-        console.info("quiz-submit results:", detail);
-      }
+      })
+        .then(async (submitRes) => {
+          const detail = await submitRes.json().catch(() => ({}));
+          if (!submitRes.ok) console.error("quiz-submit:", detail);
+          else console.info("quiz-submit results:", detail);
+        })
+        .catch((error) => console.error("quiz-submit:", error));
 
       if (QUIZ_SHEET_WEB_APP_URL) {
         void fetch(QUIZ_SHEET_WEB_APP_URL, {
@@ -387,27 +427,11 @@ const ApplicationForm = ({ variant = "default" }: ApplicationFormProps) => {
         });
       }
 
-      sessionStorage.setItem(
-        APPLICANT_STORAGE_KEY,
-        JSON.stringify({
-          name: answers.name.trim(),
-          email: answers.email.trim(),
-          phone: answers.phone.trim(),
-          leadStatus,
-        })
-      );
-
-      trackMeta("Lead", {
-        email: answers.email.trim(),
-        phone: answers.phone.trim(),
-        name: answers.name.trim(),
-      });
-
       if (isDq) {
         setDisqualified(true);
         return;
       }
-      navigate("/booking");
+      setBooking(true);
     } catch (error) {
       console.error("Quiz submit:", error);
       toast({
@@ -430,6 +454,30 @@ const ApplicationForm = ({ variant = "default" }: ApplicationFormProps) => {
         <p className="text-sm text-muted-foreground text-center">
           Start with the free resource on this page, or watch the video above again.
         </p>
+      </div>
+    );
+  }
+
+  if (booking) {
+    return (
+      <div
+        ref={formRef}
+        id="application-form"
+        className="gold-hairline bg-card rounded-3xl border border-accent/20 px-2 pt-6 pb-2 sm:p-6 shadow-2xl overflow-hidden"
+      >
+        <div className="px-3 sm:px-2 mb-5 text-center">
+          <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden mb-5">
+            <div className="h-full w-full rounded-full bg-gradient-to-r from-[hsl(var(--knight-gold-deep))] via-accent to-[hsl(var(--knight-gold-light))]" />
+          </div>
+          <p className="text-xs sm:text-sm font-bold uppercase tracking-wider text-accent mb-2">You qualified · Final step</p>
+          <h2 className="font-display text-2xl sm:text-3xl md:text-4xl mb-2">Book your Gameplan call</h2>
+          <p className="text-sm sm:text-base text-muted-foreground">
+            Pick a time below. We&apos;ll build your plan around your schedule and the foods you already eat.
+          </p>
+        </div>
+        <div className="rounded-2xl overflow-hidden">
+          <CalBookingEmbed />
+        </div>
       </div>
     );
   }
@@ -670,7 +718,7 @@ const ApplicationForm = ({ variant = "default" }: ApplicationFormProps) => {
             <Link to="/privacy" className="text-foreground underline underline-offset-2">
               Privacy Policy
             </Link>
-            . No spam, ever.
+            , and to receive calls and texts about your application at the number above. Msg &amp; data rates may apply. Reply STOP to opt out.
           </p>
           <Button type="submit" variant="hero" size="xl" className="w-full rounded-2xl font-display text-base sm:text-lg" disabled={isSubmitting}>
             {isSubmitting ? (

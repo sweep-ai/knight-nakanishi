@@ -1,4 +1,5 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { APPLICANT_STORAGE_KEY, CAL_LINK, funnelEvent } from "@/config/funnel";
 import { trackMeta } from "@/lib/metaPixel";
@@ -88,13 +89,14 @@ export function preloadCalBooking() {
 const CalBookingEmbed = () => {
   const navigate = useNavigate();
   const routed = useRef(false);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     const Cal = loadCal();
     Cal("init", CAL_NAMESPACE, { origin: CAL_ORIGIN });
     const ns = Cal.ns![CAL_NAMESPACE] as CalFn;
 
-    const goPostBooking = () => {
+    const goPostBooking = (e?: { detail?: { data?: { startTime?: unknown; endTime?: unknown } } }) => {
       if (routed.current) return;
       routed.current = true;
       try {
@@ -104,6 +106,28 @@ const CalBookingEmbed = () => {
       } catch (error) {
         console.error("booking tracking:", error);
       }
+      // Move the lead to CloseLoop's "booked" scenario. keepalive survives the route change.
+      try {
+        const applicant = readApplicant();
+        const data = e?.detail?.data;
+        if (applicant.phone) {
+          void fetch("/api/closeloop-booked", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            keepalive: true,
+            body: JSON.stringify({
+              name: applicant.name,
+              email: applicant.email,
+              phone: applicant.phone,
+              callStart: typeof data?.startTime === "string" ? data.startTime : undefined,
+              callEnd: typeof data?.endTime === "string" ? data.endTime : undefined,
+              timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            }),
+          }).catch((error) => console.error("closeloop-booked:", error));
+        }
+      } catch (error) {
+        console.error("closeloop-booked:", error);
+      }
       navigate("/post-booking", { replace: true });
     };
 
@@ -112,6 +136,14 @@ const CalBookingEmbed = () => {
     for (const action of successActions) {
       ns("on", { action, callback: goPostBooking });
     }
+
+    // Hide the loading state once the calendar has rendered (or failed, so it never hangs).
+    const markReady = () => setReady(true);
+    const readyActions = ["linkReady", "linkFailed"] as const;
+    for (const action of readyActions) {
+      ns("on", { action, callback: markReady });
+    }
+    const readyFallback = window.setTimeout(markReady, 8000);
 
     const applicant = readApplicant();
     const phone = toE164(applicant.phone);
@@ -134,15 +166,31 @@ const CalBookingEmbed = () => {
       for (const action of successActions) {
         ns("off", { action, callback: goPostBooking });
       }
+      for (const action of readyActions) {
+        ns("off", { action, callback: markReady });
+      }
+      window.clearTimeout(readyFallback);
     };
   }, [navigate]);
 
   return (
-    <div
-      id={CONTAINER_ID}
-      className="block w-full bg-card"
-      style={{ width: "100%", minHeight: "700px", overflow: "auto" }}
-    />
+    <div className="relative w-full">
+      <div
+        id={CONTAINER_ID}
+        className="block w-full bg-card"
+        style={{ width: "100%", minHeight: "700px", overflow: "auto" }}
+      />
+      {!ready && (
+        <div
+          className="pointer-events-none absolute inset-0 flex flex-col items-center justify-start gap-3 bg-card pt-24 text-muted-foreground"
+          role="status"
+          aria-live="polite"
+        >
+          <Loader2 className="h-7 w-7 animate-spin text-accent" aria-hidden />
+          <span className="text-sm">Loading available times…</span>
+        </div>
+      )}
+    </div>
   );
 };
 
