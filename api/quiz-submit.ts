@@ -172,13 +172,14 @@ async function forwardSweepWebhook(body: QuizSubmitBody) {
   return { ok: res.ok, status: res.status, data };
 }
 
-// CloseLoop AI setter: qualified leads start in "not_booked" (they see the calendar next).
-// If they book, /api/closeloop-booked moves them to "booked". Disqualified leads are not texted.
+// CloseLoop AI setter: every full quiz submit starts in "not_booked".
+// Qualified leads see the calendar next; if they book, /api/closeloop-booked moves them to "booked".
+// Disqualified leads never see the calendar, so the AI is told via context and speaks with them by text.
 async function forwardCloseLoop(body: QuizSubmitBody): Promise<CloseLoopResult> {
-  if (body.leadStatus !== "qualified") return { skipped: true, reason: `leadStatus ${body.leadStatus || "missing"}` };
   const phone = body.phone?.trim();
   if (!phone) return { skipped: true, reason: "phone missing" };
 
+  const qualified = body.leadStatus === "qualified";
   const { firstName, lastName } = splitName(body.name || "");
   const { "Lead status": _status, Notes: _notes, ...answers } = quizAnswerFields(body);
   const fields = flatFields(
@@ -199,6 +200,14 @@ async function forwardCloseLoop(body: QuizSubmitBody): Promise<CloseLoopResult> 
     source: `Funnel quiz – ${body.formId || "root-quiz"}`,
     scenario: "not_booked",
     fields,
+    context: flatFields(
+      {
+        lead_status: qualified ? "qualified" : "not qualified",
+        calendar_shown: qualified ? "yes, saw the booking calendar but has not booked yet" : "no, did not get access to the booking calendar",
+        not_qualified_reason: qualified ? undefined : body.dqReason || undefined,
+      },
+      500
+    ),
   });
 }
 
